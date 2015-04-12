@@ -1,0 +1,4 @@
+^\.travis\.yml$
+^extra$
+^Makefile$
+^notes\.md$

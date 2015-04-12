@@ -1,0 +1,13 @@
+Package: RedisAPI
+Title: Wrapper For Redis API
+Version: 0.1.0
+Authors@R: "Rich FitzJohn <rich.fitzjohn@gmail.com> [aut, cre]"
+Description: Wraps the full Redis API
+Depends: R (>= 3.1.2)
+License: BSD_2_clause + file LICENSE
+LazyData: true
+Author: Rich FitzJohn
+Maintainer: Rich FitzJohn <rich.fitzjohn@gmail.com>
+Imports: R6
+Suggests: testthat
+Enhances: RcppRedis, rredis, rrlite

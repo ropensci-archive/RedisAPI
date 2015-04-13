@@ -1,7 +1,7 @@
 context("rredis")
-skip_if_no_rredis()
 
 test_that("creation", {
+  skip_if_no_rredis()
   rredis::redisConnect()
   obj <- redis_api(rredis::redisCmd)
   expect_that(obj, is_a("redis_api"))

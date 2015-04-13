@@ -12,7 +12,7 @@ test_that("creation", {
 })
 
 test_that("connection", {
-    skip_if_no_RcppRedis()
+  skip_if_no_RcppRedis()
   con <- redis_context()
   expect_that(con$context$exec("PING"), equals("PONG"))
 })
@@ -27,7 +27,8 @@ test_that("use", {
   r$DEL(key)
 })
 
-test_that("redis", {
+test_that("rdb", {
+  skip_if_no_RcppRedis()
   r <- rdb(hiredis)
   x <- mtcars
   expect_that(r$set("foo", x), is_null())

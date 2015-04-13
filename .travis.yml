@@ -18,7 +18,8 @@ install:
   - ./travis-tool.sh install_deps
   - ./travis-tool.sh install_r rmarkdown
   - ./travis-tool.sh github_package jimhester/covr
-  - ./travis-tool.sh github_package richfitz/rrlite
+  - # ./travis-tool.sh github_package richfitz/rrlite
+  - Rscript -e 'library(devtools); library(methods); options(repos=c(CRAN="http://cran.rstudio.com")); devtools::install_git("https://github.com/richfitz/rrlite", args="--recursive")'
 
 script: ./travis-tool.sh run_tests
 

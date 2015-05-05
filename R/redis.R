@@ -21,12 +21,15 @@ redis_api_info <- function(run, host=NULL, port=NULL, type=NULL) {
   if (is.null(type)) {
     type <- get(".packageName", envir)
   }
+  ## TODO: perhaps do this as an S3 method?  This is using information
+  ## from the rrlite package here.
   if (type == "rrlite") {
     if (is.null(host)) {
       host <- envir$self$path
     }
   } else if (type == "RcppRedis") {
     ## TODO: not yet fetchable
+    ## TODO: this *is* perhaps fetchable from the server?
   } else if (type == "rredis") {
     if (is.null(host)) {
       host <- envir$.redisEnv$current$host

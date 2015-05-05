@@ -4,20 +4,22 @@
 \alias{rdb}
 \title{Create an rdb object}
 \usage{
-rdb(driver, ...)
+rdb(driver, ..., prefix = "rdb:")
 }
 \arguments{
 \item{driver}{A \code{redis_api} object or a function that will
 create one when passed arguments \code{...}}
 
 \item{...}{Arguments to the driver}
+
+\item{prefix}{Prefix to add to keys}
 }
 \description{
 Create an rdb object
 }
 \examples{
 \dontrun{
-r <- rdb(hirlite)
+r <- rdb(hiredis)
 r$set("foo", runif(10))
 r$get("foo")
 r$keys()

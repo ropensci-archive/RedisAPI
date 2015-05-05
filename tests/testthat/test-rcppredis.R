@@ -21,7 +21,7 @@ test_that("use", {
   skip_if_no_RcppRedis()
   r <- hiredis()
   expect_that(r$PING(), equals("PONG"))
-  key <- "rlite-test:foo"
+  key <- "redisapi-test:foo"
   expect_that(r$SET(key, "bar"), equals("OK"))
   expect_that(r$GET(key), equals("bar"))
   r$DEL(key)

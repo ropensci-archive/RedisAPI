@@ -14,8 +14,8 @@ redis_commands_groups()
 for valid names here).}
 }
 \description{
-List of valid redis commands supported by rlite/rrlite; note that
-this is a \emph{subset} of all redis commands.
+List of valid redis commands supported by hiredis, and therefore
+by RedisAPI.
 }
 \examples{
 redis_commands()

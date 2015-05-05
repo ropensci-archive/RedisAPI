@@ -1,9 +1,4 @@
 ##' @export
-redis_api.rlite_context <- function(x, ...) {
-  redis_api(x$run, ...)
-}
-
-##' @export
 redis_api.redis_context <- function(x, ...) {
   redis_api(x$context$execv, host=x$host, port=x$port, ...)
 }

@@ -3,46 +3,41 @@
 ##' @param driver A \code{redis_api} object or a function that will
 ##' create one when passed arguments \code{...}
 ##' @param ... Arguments to the driver
+##' @param prefix Prefix to add to keys
 ##' @export
 ##' @importFrom R6 R6Class
 ##' @examples
 ##' \dontrun{
-##' r <- rdb(hirlite)
+##' r <- rdb(hiredis)
 ##' r$set("foo", runif(10))
 ##' r$get("foo")
 ##' r$keys()
 ##' r$del("foo")
 ##' r$keys()
 ##' }
-rdb <- function(driver, ...) {
-  UseMethod("rdb")
-}
-
-##' @export
-rdb.redis_api <- function(driver, ...) {
-  rdb_generator$new(driver)
-}
-
-##' @export
-rdb.function <- function(driver, ...) {
-  redis <- driver(...)
-  if (!inherits(redis, c("redis_api"))) {
-    stop("Expected a redis_api object")
+rdb <- function(driver, ..., prefix="rdb:") {
+  if (is.function(driver)) {
+    driver <- driver(...)
+    if (!inherits(driver, c("redis_api"))) {
+      stop("Expected a redis_api object")
+    }
   }
-  rdb.redis_api(redis)
+  rdb_generator$new(driver, prefix)
 }
 
 rdb_generator <- R6::R6Class(
   "rdb",
   public=list(
     hiredis=NULL,
+    prefix=NULL,
 
-    initialize=function(hiredis) {
+    initialize=function(hiredis, prefix) {
       self$hiredis <- hiredis
+      self$prefix  <- prefix
     },
 
     set=function(key, value) {
-      ok <- self$hiredis$SET(key, object_to_string(value))
+      ok <- self$hiredis$SET(self$key(key), object_to_string(value))
       if (ok != "OK") {
         stop("Error setting key")
       }
@@ -50,7 +45,7 @@ rdb_generator <- R6::R6Class(
     },
 
     get=function(key) {
-      ret <- self$hiredis$GET(key)
+      ret <- self$hiredis$GET(self$key(key))
       if (is.null(ret)) ret else string_to_object(ret)
     },
 
@@ -58,14 +53,19 @@ rdb_generator <- R6::R6Class(
       if (is.null(pattern)) {
         pattern <- "*"
       }
-      as.character(unlist(self$hiredis$KEYS(pattern)))
+      sub(paste0("^", self$prefix), "",
+          as.character(unlist(self$hiredis$KEYS(self$key(pattern)))))
     },
 
     exists=function(key) {
-      self$hiredis$EXISTS(key) == 1L
+      self$hiredis$EXISTS(self$key(key)) == 1L
     },
 
     del=function(key) {
-      invisible(self$hiredis$DEL(key) == 1L)
+      invisible(self$hiredis$DEL(self$key(key)) == 1L)
+    },
+
+    key=function(key) {
+      paste0(self$prefix, key)
     }
   ))

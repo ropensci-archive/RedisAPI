@@ -2,7 +2,7 @@
 ##' thin wrapper around the existing R functions
 ##' \code{\link{serialize}} and \code{\link{rawToChar}}.  This is
 ##' useful to encode arbitrary R objects as string to then save in
-##' rlite (which expects a string).
+##' Redis (which expects a string).
 ##' @title Convert R objects to/from strings
 ##' @param obj An R object to convert into a string
 ##' @export

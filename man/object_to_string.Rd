@@ -19,7 +19,7 @@ Serialise/deserialise an R object into a string.  This is a very
 thin wrapper around the existing R functions
 \code{\link{serialize}} and \code{\link{rawToChar}}.  This is
 useful to encode arbitrary R objects as string to then save in
-rlite (which expects a string).
+Redis (which expects a string).
 }
 \examples{
 s <- object_to_string(1:10)

@@ -1,5 +1,5 @@
-##' List of valid redis commands supported by rlite/rrlite; note that
-##' this is a \emph{subset} of all redis commands.
+##' List of valid redis commands supported by hiredis, and therefore
+##' by RedisAPI.
 ##' @title List of valid redis commands
 ##' @param group Optional group name (run \code{redis_commands_groups}
 ##' for valid names here).

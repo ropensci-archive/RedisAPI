@@ -31,7 +31,7 @@ redis_context <- function(host="127.0.0.1", port=6379) {
   ## keep the host/port information.
   ##
   ## Once moved into RcppRedis that won't be needed.
-  require("RcppRedis", character.only=TRUE, quietly=TRUE)
+  requireNamespace("RcppRedis")
   ret <- list(host=host, port=port,
               context=new(RcppRedis::Redis, host, port))
   class(ret) <- "redis_context"

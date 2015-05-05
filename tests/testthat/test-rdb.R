@@ -15,9 +15,8 @@ test_that("rlite", {
 })
 
 test_that("redis", {
-  skip_if_no_RcppRedis()
   skip_if_no_rrlite()
-  r <- rdb(rrlite::hiredis)
+  r <- rdb(rrlite::hirlite)
   on.exit(file.remove("test.rld"))
   x <- mtcars
   expect_that(r$set("foo", x), is_null())

@@ -3,3 +3,4 @@
 .RData
 extra/redis-doc
 notes.md
+inst/doc

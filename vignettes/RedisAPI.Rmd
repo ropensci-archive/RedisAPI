@@ -13,7 +13,7 @@ vignette: >
 library(RedisAPI)
 ```
 
-```{r, echo=FALSE, results=FALSE}
+```{r, echo=FALSE, results="hide"}
 # cleanup:
 library(RcppRedis)
 RedisAPI::hiredis()$DEL(c("mykey", "mylist", "mylist2"))
@@ -201,7 +201,7 @@ obj[[2]] == obj2[[2]]
 
 What would be nice is a set of tools for working with any R/`Redis` package that can convert R objects into `Redis` data structures so that they can be accessed in pieces even if they are far too big to fit into memory.  Of course, these objects could be read/written by programs *other* than R if they also support `Redis`.
 
-```{r, echo=FALSE, results=FALSE}
+```{r, echo=FALSE, results="hide"}
 # cleanup:
 r$DEL(c("mykey", "mylist", "mylist2"))
 ```

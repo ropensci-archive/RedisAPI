@@ -3,6 +3,7 @@
 S3method(redis_api,Rcpp_Redis)
 S3method(redis_api,default)
 S3method(redis_api,redis_context)
+export(from_redis_hash)
 export(hiredis)
 export(object_to_string)
 export(parse_info)

@@ -1,6 +1,6 @@
 Package: RedisAPI
 Title: Wrapper For Redis API
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: "Rich FitzJohn <rich.fitzjohn@gmail.com> [aut, cre]"
 Description: Automatically generated R6 interface to the full
   'hiredis' API.  Generated functions are faithful to the 'hiredis'

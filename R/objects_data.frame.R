@@ -1,5 +1,4 @@
 keys.data.frame <- function(key) {
-  rows_cells <- function(i) sprintf("%s:rows:%d", key, i)
   list(type=sprintf("%s:type", key),
        nrows=sprintf("%s:nrows", key),
        rows=sprintf("%s:rows", key),
@@ -7,9 +6,15 @@ keys.data.frame <- function(key) {
        names=sprintf("%s:names", key),
        factors_levels=sprintf("%s:factors:levels", key),
        factors_ordered=sprintf("%s:factors:ordered", key),
-       rows_cells=rows_cells, # cells only
        classes=sprintf("%s:classes", key),
        attributes=sprintf("%s:attributes", key))
+}
+
+## Does not depend on the key; this is for the hash key.
+hash_key_cell <- function(name, i) {
+  ## Can do very slightly better with stringi, but not worth the
+  ## dependency.
+  paste(name, i, sep=":")
 }
 
 redis_object_set.data.frame <- function(key, object, db, ...) {
@@ -17,21 +22,8 @@ redis_object_set.data.frame <- function(key, object, db, ...) {
   dat <- df_disassemble(object)
   nr <- nrow(object)
 
-  ## TODO: On delete, fetch nrow and delete all keys the first.
-
   ## Delete a bunch of things that are accessed not all at once:
-  ## TODO: we really want to be deleting all keys:rows:%d from cells
-  ## too, but that's really hard to get right without hitting KEYS.
-  ## For now just pass on it.
-  db$DEL(as.character(keys[setdiff(names(keys), "rows_cells")]))
-
-  ## TODO: all of this can be considerably sped up using pipelineing
-  ## (not available in RcppRedis I think) or using scripting
-  ##   - http://redis.io/topics/pipelining
-  ##   - http://redis.io/commands/eval
-  ## the trick will be to reduce the number of roundtrips (i.e., the
-  ## for loop) by pushing the data up in bulk and then directing it
-  ## into the right place with a lua script.
+  db$DEL(as.character(keys))
 
   db$SET(keys$type, "data.frame")
 
@@ -57,13 +49,20 @@ redis_object_set.data.frame <- function(key, object, db, ...) {
 
   at <- attributes(object)
   at$names <- at$row.names <- NULL # already stored
-  ## Could do this with another hash, but
+  ## Could do this with another hash, but this way is simpler for now.
   db$SET(keys$attributes, object_to_string(at))
 
-  idx <- seq_len(nr)
-  keys_rows_cells <- keys$rows_cells(idx)
-  for (i in idx) {
-    db$HMSET(keys_rows_cells[[i]], dat$names, dat$rows[i,])
+  ## TODO: Might need to batch this or we could exceed the allowable size...
+  ## TODO: Perhaps preserve column names on the matrix?
+  ## NOTE: the Redis command here is crazy quick; there's as much
+  ## overhead in generating the keys.  Shifting that into lua could
+  ## save time and space.
+  ## NOTE: similarly, the number -> string conversion is slow for very
+  ## large data sets.
+  idx_r <- seq_len(nr)
+  for (i in seq_along(dat$names)) {
+    fields <- hash_key_cell(dat$names[[i]], idx_r)
+    db$HMSET(keys$rows, fields, dat$rows[, i])
   }
 
   invisible(NULL)
@@ -84,11 +83,12 @@ redis_object_get.data.frame <- function(key, db, ...) {
 
   classes <- db$HMGET(keys$classes, names)
 
-  idx <- seq_len(nr)
-  keys_rows_cells <- keys$rows_cells(idx)
-  rows <- matrix(NA_character_, nr, length(names))
-  for (i in idx) {
-    rows[i, ] <- as.character(db$HMGET(keys_rows_cells[[i]], names))
+  idx_r <- seq_len(nr)
+  rows <- matrix("", nr, length(names))
+
+  for (i in seq_along(names)) {
+    fields <- hash_key_cell(names[[i]], idx_r)
+    rows[, i] <- as.character(db$HMGET(keys$rows, fields))
   }
   ret <- df_reassemble(names, rownames, rows, factors, classes)
 
@@ -106,14 +106,7 @@ redis_object_del.data.frame <- function(key, db) {
   } else {
     n <- min(1000, n)
   }
-  db$DEL(as.character(keys[setdiff(names(keys), "rows_cells")]))
-  pattern <- sub("0$", "*", keys$rows_cells(0))
-  if (db$type == "RcppRedis") { # SCAN supported:
-    RedisAPI::scan_del(db, pattern, n)
-  } else {
-    ## Potentially very slow:
-    db$DEL(db$KEYS(pattern))
-  }
+  db$DEL(as.character(keys))
 }
 
 ## TODO: Use storr to deal with object columns; store them as

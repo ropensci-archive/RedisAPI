@@ -8,7 +8,7 @@ vlapply <- function(X, FUN, ...) {
   vapply(X, FUN, logical(1), ...)
 }
 interleave <- function(a, b) {
-  c(rbind(a, b))
+  c(rbind(a, b, deparse.level=0))
 }
 
 assert_scalar <- function(x, name=deparse(substitute(x))) {

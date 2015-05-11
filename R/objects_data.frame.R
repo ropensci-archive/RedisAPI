@@ -44,13 +44,15 @@ redis_object_set.data.frame <- function(key, object, db, ...) {
   if (!is.null(dat$rownames)) {
     db$RPUSH(keys$rownames, dat$rownames)
   }
-  db$RPUSH(keys$names,   dat$names)
-  db$HMSET(keys$factors_ordered,
-           names(dat$factors$ordered),
-           as.character(dat$factors$ordered))
-  db$HMSET(keys$factors_levels,
-           names(dat$factors$levels),
-           vcapply(dat$factors$levels, object_to_string, USE.NAMES=FALSE))
+  db$RPUSH(keys$names, dat$names)
+  if (length(dat$factors$ordered) > 0L) {
+    db$HMSET(keys$factors_ordered,
+             names(dat$factors$ordered),
+             as.character(dat$factors$ordered))
+    db$HMSET(keys$factors_levels,
+             names(dat$factors$levels),
+             vcapply(dat$factors$levels, object_to_string, USE.NAMES=FALSE))
+  }
   db$HMSET(keys$classes, dat$names, dat$classes)
 
   at <- attributes(object)

@@ -22,7 +22,9 @@ install:
   - ./travis-tool.sh github_package jimhester/covr
   - ./travis-tool.sh github_package hadley/testthat
 
-script: ./travis-tool.sh run_tests
+script:
+  - ./travis-tool.sh run_tests
+  - ./extra/revdep.R
 
 after_failure:
   - ./travis-tool.sh dump_logs

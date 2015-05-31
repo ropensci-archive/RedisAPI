@@ -2,6 +2,8 @@
 path <- "revdep"
 dir.create(path)
 
+devtols::install(".")
+
 packages <- c("richfitz/storr",
               "richfitz/RedisHeartbeat",
               "traitecoevo/rrqueue")

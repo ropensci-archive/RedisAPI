@@ -36,7 +36,10 @@ check_all:
 clean:
 	rm -f src/*.o src/*.so
 
-vignettes:
+vignettes/RedisAPI.Rmd: vignettes/src/RedisAPI.R
+	${RSCRIPT} -e 'library(sowsear); sowsear("$<", output="$@")'
+
+vignettes: vignettes/RedisAPI.Rmd
 	${RSCRIPT} -e 'library(methods); devtools::build_vignettes()'
 
 .PHONY: clean all test document install vignettes

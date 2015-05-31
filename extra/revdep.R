@@ -2,7 +2,7 @@
 path <- "revdep"
 dir.create(path)
 
-devtols::install(".")
+devtools::install(".")
 
 packages <- c("richfitz/storr",
               "richfitz/RedisHeartbeat",

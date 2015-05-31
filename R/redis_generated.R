@@ -242,7 +242,7 @@ redis_api_generator <- R6::R6Class(
     },
     LINSERT=function(key, where, pivot, value) {
       assert_scalar(key)
-      assert_scalar(where)
+      assert_match_value(where, c("BEFORE", "AFTER"))
       assert_scalar(pivot)
       assert_scalar(value)
       self$run(c("LINSERT", key, where, pivot, value))
@@ -297,8 +297,8 @@ redis_api_generator <- R6::R6Class(
       assert_scalar(key)
       assert_scalar(destination_db)
       assert_scalar(timeout)
-      assert_scalar_or_null(copy)
-      assert_scalar_or_null(replace)
+      assert_match_value_or_null(copy, c("COPY"))
+      assert_match_value_or_null(replace, c("REPLACE"))
       self$run(c("MIGRATE", host, port, key, destination_db, timeout, copy, replace))
     },
     MONITOR=function() {
@@ -397,7 +397,7 @@ redis_api_generator <- R6::R6Class(
       assert_scalar(key)
       assert_scalar(ttl)
       assert_scalar(serialized_value)
-      assert_scalar_or_null(replace)
+      assert_match_value_or_null(replace, c("REPLACE"))
       self$run(c("RESTORE", key, ttl, serialized_value, replace))
     },
     ROLE=function() {
@@ -443,13 +443,13 @@ redis_api_generator <- R6::R6Class(
       assert_scalar(index)
       self$run(c("SELECT", index))
     },
-    SET=function(key, value, ex=NULL, px=NULL, condition=NULL) {
+    SET=function(key, value, EX=NULL, PX=NULL, condition=NULL) {
       assert_scalar(key)
       assert_scalar(value)
-      assert_scalar_or_null(ex)
-      assert_scalar_or_null(px)
-      assert_scalar_or_null(condition)
-      self$run(c("SET", key, value, ex, px, condition))
+      assert_scalar_or_null(EX)
+      assert_scalar_or_null(PX)
+      assert_match_value_or_null(condition, c("NX", "XX"))
+      self$run(c("SET", key, value, command("EX", EX, FALSE), command("PX", PX, FALSE), condition))
     },
     SETBIT=function(key, offset, value) {
       assert_scalar(key)
@@ -475,8 +475,8 @@ redis_api_generator <- R6::R6Class(
       self$run(c("SETRANGE", key, offset, value))
     },
     SHUTDOWN=function(NOSAVE=NULL, SAVE=NULL) {
-      assert_scalar_or_null(NOSAVE)
-      assert_scalar_or_null(SAVE)
+      assert_match_value_or_null(NOSAVE, c("NOSAVE"))
+      assert_match_value_or_null(SAVE, c("SAVE"))
       self$run(c("SHUTDOWN", NOSAVE, SAVE))
     },
     SINTER=function(key) {
@@ -511,15 +511,14 @@ redis_api_generator <- R6::R6Class(
       assert_scalar(member)
       self$run(c("SMOVE", source, destination, member))
     },
-    SORT=function(key, by=NULL, limit_offset=NULL, limit_count=NULL, get=NULL, order=NULL, sorting=NULL, store=NULL) {
+    SORT=function(key, BY=NULL, LIMIT=NULL, GET=NULL, order=NULL, sorting=NULL, STORE=NULL) {
       assert_scalar(key)
-      assert_scalar_or_null(by)
-      assert_scalar_or_null(limit_offset)
-      assert_scalar_or_null(limit_count)
-      assert_scalar_or_null(order)
-      assert_scalar_or_null(sorting)
-      assert_scalar_or_null(store)
-      self$run(c("SORT", key, by, limit_offset, limit_count, get, order, sorting, store))
+      assert_scalar_or_null(BY)
+      assert_length_or_null(LIMIT, 2L)
+      assert_match_value_or_null(order, c("ASC", "DESC"))
+      assert_match_value_or_null(sorting, c("ALPHA"))
+      assert_scalar_or_null(STORE)
+      self$run(c("SORT", key, command("BY", BY, FALSE), command("LIMIT", LIMIT, TRUE), command("GET", GET, FALSE), order, sorting, command("STORE", STORE, FALSE)))
     },
     SPOP=function(key, count=NULL) {
       assert_scalar(key)
@@ -593,12 +592,12 @@ redis_api_generator <- R6::R6Class(
       assert_scalar(member)
       self$run(c("ZINCRBY", key, increment, member))
     },
-    ZINTERSTORE=function(destination, numkeys, key, weights=NULL, aggregate=NULL) {
+    ZINTERSTORE=function(destination, numkeys, key, WEIGHTS=NULL, AGGREGATE=NULL) {
       assert_scalar(destination)
       assert_scalar(numkeys)
-      assert_scalar_or_null(weights)
-      assert_scalar_or_null(aggregate)
-      self$run(c("ZINTERSTORE", destination, numkeys, key, weights, aggregate))
+      assert_scalar_or_null(WEIGHTS)
+      assert_match_value_or_null(AGGREGATE, c("SUM", "MIN", "MAX"))
+      self$run(c("ZINTERSTORE", destination, numkeys, key, command("WEIGHTS", WEIGHTS, FALSE), command("AGGREGATE", AGGREGATE, FALSE)))
     },
     ZLEXCOUNT=function(key, min, max) {
       assert_scalar(key)
@@ -610,33 +609,30 @@ redis_api_generator <- R6::R6Class(
       assert_scalar(key)
       assert_scalar(start)
       assert_scalar(stop)
-      assert_scalar_or_null(withscores)
+      assert_match_value_or_null(withscores, c("WITHSCORES"))
       self$run(c("ZRANGE", key, start, stop, withscores))
     },
-    ZRANGEBYLEX=function(key, min, max, limit_offset=NULL, limit_count=NULL) {
+    ZRANGEBYLEX=function(key, min, max, LIMIT=NULL) {
       assert_scalar(key)
       assert_scalar(min)
       assert_scalar(max)
-      assert_scalar_or_null(limit_offset)
-      assert_scalar_or_null(limit_count)
-      self$run(c("ZRANGEBYLEX", key, min, max, limit_offset, limit_count))
+      assert_length_or_null(LIMIT, 2L)
+      self$run(c("ZRANGEBYLEX", key, min, max, command("LIMIT", LIMIT, TRUE)))
     },
-    ZREVRANGEBYLEX=function(key, max, min, limit_offset=NULL, limit_count=NULL) {
+    ZREVRANGEBYLEX=function(key, max, min, LIMIT=NULL) {
       assert_scalar(key)
       assert_scalar(max)
       assert_scalar(min)
-      assert_scalar_or_null(limit_offset)
-      assert_scalar_or_null(limit_count)
-      self$run(c("ZREVRANGEBYLEX", key, max, min, limit_offset, limit_count))
+      assert_length_or_null(LIMIT, 2L)
+      self$run(c("ZREVRANGEBYLEX", key, max, min, command("LIMIT", LIMIT, TRUE)))
     },
-    ZRANGEBYSCORE=function(key, min, max, withscores=NULL, limit_offset=NULL, limit_count=NULL) {
+    ZRANGEBYSCORE=function(key, min, max, withscores=NULL, LIMIT=NULL) {
       assert_scalar(key)
       assert_scalar(min)
       assert_scalar(max)
-      assert_scalar_or_null(withscores)
-      assert_scalar_or_null(limit_offset)
-      assert_scalar_or_null(limit_count)
-      self$run(c("ZRANGEBYSCORE", key, min, max, withscores, limit_offset, limit_count))
+      assert_match_value_or_null(withscores, c("WITHSCORES"))
+      assert_length_or_null(LIMIT, 2L)
+      self$run(c("ZRANGEBYSCORE", key, min, max, withscores, command("LIMIT", LIMIT, TRUE)))
     },
     ZRANK=function(key, member) {
       assert_scalar(key)
@@ -669,17 +665,16 @@ redis_api_generator <- R6::R6Class(
       assert_scalar(key)
       assert_scalar(start)
       assert_scalar(stop)
-      assert_scalar_or_null(withscores)
+      assert_match_value_or_null(withscores, c("WITHSCORES"))
       self$run(c("ZREVRANGE", key, start, stop, withscores))
     },
-    ZREVRANGEBYSCORE=function(key, max, min, withscores=NULL, limit_offset=NULL, limit_count=NULL) {
+    ZREVRANGEBYSCORE=function(key, max, min, withscores=NULL, LIMIT=NULL) {
       assert_scalar(key)
       assert_scalar(max)
       assert_scalar(min)
-      assert_scalar_or_null(withscores)
-      assert_scalar_or_null(limit_offset)
-      assert_scalar_or_null(limit_count)
-      self$run(c("ZREVRANGEBYSCORE", key, max, min, withscores, limit_offset, limit_count))
+      assert_match_value_or_null(withscores, c("WITHSCORES"))
+      assert_length_or_null(LIMIT, 2L)
+      self$run(c("ZREVRANGEBYSCORE", key, max, min, withscores, command("LIMIT", LIMIT, TRUE)))
     },
     ZREVRANK=function(key, member) {
       assert_scalar(key)
@@ -691,38 +686,38 @@ redis_api_generator <- R6::R6Class(
       assert_scalar(member)
       self$run(c("ZSCORE", key, member))
     },
-    ZUNIONSTORE=function(destination, numkeys, key, weights=NULL, aggregate=NULL) {
+    ZUNIONSTORE=function(destination, numkeys, key, WEIGHTS=NULL, AGGREGATE=NULL) {
       assert_scalar(destination)
       assert_scalar(numkeys)
-      assert_scalar_or_null(weights)
-      assert_scalar_or_null(aggregate)
-      self$run(c("ZUNIONSTORE", destination, numkeys, key, weights, aggregate))
+      assert_scalar_or_null(WEIGHTS)
+      assert_match_value_or_null(AGGREGATE, c("SUM", "MIN", "MAX"))
+      self$run(c("ZUNIONSTORE", destination, numkeys, key, command("WEIGHTS", WEIGHTS, FALSE), command("AGGREGATE", AGGREGATE, FALSE)))
     },
-    SCAN=function(cursor, match=NULL, count=NULL) {
+    SCAN=function(cursor, MATCH=NULL, COUNT=NULL) {
       assert_scalar(cursor)
-      assert_scalar_or_null(match)
-      assert_scalar_or_null(count)
-      self$run(c("SCAN", cursor, match, count))
+      assert_scalar_or_null(MATCH)
+      assert_scalar_or_null(COUNT)
+      self$run(c("SCAN", cursor, command("MATCH", MATCH, FALSE), command("COUNT", COUNT, FALSE)))
     },
-    SSCAN=function(key, cursor, match=NULL, count=NULL) {
+    SSCAN=function(key, cursor, MATCH=NULL, COUNT=NULL) {
       assert_scalar(key)
       assert_scalar(cursor)
-      assert_scalar_or_null(match)
-      assert_scalar_or_null(count)
-      self$run(c("SSCAN", key, cursor, match, count))
+      assert_scalar_or_null(MATCH)
+      assert_scalar_or_null(COUNT)
+      self$run(c("SSCAN", key, cursor, command("MATCH", MATCH, FALSE), command("COUNT", COUNT, FALSE)))
     },
-    HSCAN=function(key, cursor, match=NULL, count=NULL) {
+    HSCAN=function(key, cursor, MATCH=NULL, COUNT=NULL) {
       assert_scalar(key)
       assert_scalar(cursor)
-      assert_scalar_or_null(match)
-      assert_scalar_or_null(count)
-      self$run(c("HSCAN", key, cursor, match, count))
+      assert_scalar_or_null(MATCH)
+      assert_scalar_or_null(COUNT)
+      self$run(c("HSCAN", key, cursor, command("MATCH", MATCH, FALSE), command("COUNT", COUNT, FALSE)))
     },
-    ZSCAN=function(key, cursor, match=NULL, count=NULL) {
+    ZSCAN=function(key, cursor, MATCH=NULL, COUNT=NULL) {
       assert_scalar(key)
       assert_scalar(cursor)
-      assert_scalar_or_null(match)
-      assert_scalar_or_null(count)
-      self$run(c("ZSCAN", key, cursor, match, count))
+      assert_scalar_or_null(MATCH)
+      assert_scalar_or_null(COUNT)
+      self$run(c("ZSCAN", key, cursor, command("MATCH", MATCH, FALSE), command("COUNT", COUNT, FALSE)))
     }
     ))

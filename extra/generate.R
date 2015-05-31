@@ -14,3 +14,5 @@ save(cmds, file=file.path(path_R, "sysdata.rda"))
 
 ## TODO: I want to get the help files added by cloning that from
 ## redis-cli which already formats things nicely.
+
+## Things with *multiple* optional arguments.  These also take "command"

@@ -19,6 +19,7 @@ redis_api_info <- function(run, host=NULL, port=NULL, type=NULL) {
   ## First, try and determine the type:
   envir <- environment(run)
   if (is.null(type)) {
+    ## TODO: allow non-package functions here?
     type <- get(".packageName", envir)
   }
   ## TODO: perhaps do this as an S3 method?  This is using information
@@ -38,6 +39,7 @@ redis_api_info <- function(run, host=NULL, port=NULL, type=NULL) {
       port <- envir$.redisEnv$current$port
     }
   }
+  ## TODO: default case?
   list(host=host, port=port, type=type)
 }
 

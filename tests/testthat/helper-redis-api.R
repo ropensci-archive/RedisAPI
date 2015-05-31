@@ -35,3 +35,9 @@ mixed_fake_data <- function(nr) {
              x_factor=factor(str),
              stringsAsFactors=FALSE)
 }
+
+rand_str <- function(prefix="") {
+  len <- rpois(1, 5) + 1L
+  paste0(prefix,
+         paste(sample(c(LETTERS, letters, 0:9), len), collapse=""))
+}

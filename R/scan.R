@@ -12,20 +12,11 @@
 ##' @export
 scan_apply <- function(con, callback, pattern=NULL, count=NULL) {
   ## TODO: need escape hatch here for rlite which does not support
-  ## SCAN yet.
+  ## SCAN yet.  According to the issue on rlite, the best thing to do
+  ## is KEYS
   cursor <- 0L
-
-  opts <- character(0)
-  ## This needs fixing in SCAN()
-  if (!is.null(pattern)) {
-    opts <- c(opts, "MATCH", pattern)
-  }
-  if (!is.null(count)) {
-    opts <- c(opts, "COUNT", count)
-  }
-
   repeat {
-    res <- con$run(c("SCAN", cursor, opts))
+    res <- con$SCAN(cursor, pattern, count)
     cursor <- res[[1]]
     callback(as.character(res[[2]]))
     if (cursor == "0") {

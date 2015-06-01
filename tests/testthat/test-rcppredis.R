@@ -1,24 +1,13 @@
 context("RcppRedis")
 
-test_that("creation", {
-  skip_if_no_RcppRedis()
-  con <- new(RcppRedis::Redis)
-  obj <- redis_api(con$execv)
-  expect_that(obj, is_a("redis_api"))
-  expect_that(obj$type, equals("RcppRedis"))
-  expect_that(obj$host, equals(NULL)) # Not set yet
-  expect_that(obj$port, equals(NULL)) # Not set yet
-  expect_that(obj$PING(), equals("PONG"))
-})
-
 test_that("connection", {
-  skip_if_no_RcppRedis()
+  skip_if_no_redis()
   con <- redis_context()
-  expect_that(con$context$exec("PING"), equals("PONG"))
+  expect_that(con$exec("PING"), equals("PONG"))
 })
 
 test_that("use", {
-  skip_if_no_RcppRedis()
+  skip_if_no_redis()
   r <- hiredis()
   expect_that(r$PING(), equals("PONG"))
   key <- "redisapi-test:foo"
@@ -28,7 +17,7 @@ test_that("use", {
 })
 
 test_that("rdb", {
-  skip_if_no_RcppRedis()
+  skip_if_no_redis()
   r <- rdb(hiredis)
   x <- mtcars
   expect_that(r$set("foo", x), is_null())

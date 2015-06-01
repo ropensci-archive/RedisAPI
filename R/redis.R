@@ -1,46 +1,18 @@
 ##' Create a Redis API object
+##'
+##' This function is designed to be used from other packages, and not
+##' designed to be used directly by users.  \code{host}, \code{port}
+##' and \code{type} are never used except for being stored in the
+##' returned object.
 ##' @title Create a Redis API object
 ##' @param x An object
-##' @param ... Arguments passed through to methods
+##' @param host String indicating the hostnae
+##' @param port String indicating the port
+##' @param type String indicating the type
 ##' @importFrom R6 R6Class
 ##' @export
-redis_api <- function(x, ...) {
-  UseMethod("redis_api")
-}
-##' @export
-redis_api.default <- function(x, ...) {
-  redis_api_generator$new(x, ...)
-}
-
-redis_api_info <- function(run, host=NULL, port=NULL, type=NULL) {
-  if (!is.function(run)) {
-    stop("run must be a function")
-  }
-  ## First, try and determine the type:
-  envir <- environment(run)
-  if (is.null(type)) {
-    ## TODO: allow non-package functions here?
-    type <- get(".packageName", envir)
-  }
-  ## TODO: perhaps do this as an S3 method?  This is using information
-  ## from the rrlite package here.
-  if (type == "rrlite") {
-    if (is.null(host)) {
-      host <- envir$self$path
-    }
-  } else if (type == "RcppRedis") {
-    ## TODO: not yet fetchable
-    ## TODO: this *is* perhaps fetchable from the server?
-  } else if (type == "rredis") {
-    if (is.null(host)) {
-      host <- envir$.redisEnv$current$host
-    }
-    if (is.null(port)) {
-      port <- envir$.redisEnv$current$port
-    }
-  }
-  ## TODO: default case?
-  list(host=host, port=port, type=type)
+redis_api <- function(x, host, port, type) {
+  redis_api_generator$new(x, host, port, type)
 }
 
 ##' Parse information returned by \code{INFO}
@@ -56,4 +28,40 @@ parse_info <- function(x) {
   keys <- strsplit(keys, ",", fixed=TRUE)
   keys$redis_version <- numeric_version(keys$redis_version)
   keys
+}
+
+##' Create an interface to Redis, via RcppRedis.  The returned object
+##' includes methods for all Redis commands.
+##'
+##' @title Interface to Redis
+##' @param host Hostname (default is the localhost)
+##' @param port Port to connect on (default is Redis' default of 6379)
+##' @export
+##' @examples
+##' # Only run if a Redis server is running
+##' if (redis_available()) {
+##'   r <- hiredis()
+##'   r$PING()
+##'   r$SET("foo", "bar")
+##'   r$GET("foo")
+##' }
+hiredis <- function(host="127.0.0.1", port=6379) {
+  redis_api(redis_context(host, port)$execv,
+            host, port, "RcppRedis")
+}
+
+##' @export
+##' @rdname hiredis
+##' @param ... Arguments passed from \code{redis_available} to
+##' \code{hiredis}
+redis_available <- function(...) {
+  ## This will throw if Redis is not running because we'll get a
+  ## "connection refused" error.
+  !inherits(con <- try(redis_context(...), silent=TRUE), "try-error")
+}
+
+## This only exists to hide the ugly S4 initialisation and be a
+## minimal test of Redis running.
+redis_context <- function(host="127.0.0.1", port=6379) {
+  new(RcppRedis::Redis, host, port)
 }

@@ -194,11 +194,10 @@ generate <- function(cmds) {
     run=NULL,
     type=NULL,
     initialize=function(run, host=NULL, port=NULL, type=NULL) {
-      info <- redis_api_info(run, host, port, type)
       self$run  <- run
-      self$host <- info$host
-      self$port <- info$port
-      self$type <- info$type
+      self$host <- host
+      self$port <- port
+      self$type <- type
     },
 %s
     ))' -> fmt

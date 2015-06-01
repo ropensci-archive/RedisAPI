@@ -9,6 +9,11 @@ packages <- c("richfitz/storr",
               "traitecoevo/rrqueue")
 prefix <- "https://github.com/"
 
+## deps <- c("richfitz/callr")
+## for (d in deps) {
+##   devtools::install_github(d)
+## }
+
 for (p in packages) {
   system2("git", c("clone", paste0(prefix, p), file.path(path, p)))
   devtools::install(file.path(path, p))

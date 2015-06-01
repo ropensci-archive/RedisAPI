@@ -7,11 +7,10 @@ redis_api_generator <- R6::R6Class(
     run=NULL,
     type=NULL,
     initialize=function(run, host=NULL, port=NULL, type=NULL) {
-      info <- redis_api_info(run, host, port, type)
       self$run  <- run
-      self$host <- info$host
-      self$port <- info$port
-      self$type <- info$type
+      self$host <- host
+      self$port <- port
+      self$type <- type
     },
     APPEND=function(key, value) {
       assert_scalar(key)

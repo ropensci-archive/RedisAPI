@@ -4,6 +4,11 @@ language: c
 
 sudo: required
 
+global:
+  env:
+    - R_BUILD_ARGS="--no-manual"
+    - R_CHECK_ARGS="--no-manual --as-cran"
+
 # For testing against and using RcppRedis
 services:
   - redis-server

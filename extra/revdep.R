@@ -17,7 +17,7 @@ if (Sys.getenv("USER") == "rich") {
 } else {
   prefix <- "https://github.com"
 
-  deps <- c("richfitz/callr")
+  deps <- c("traitecoevo/callr")
   for (d in deps) {
     devtools::install_github(d)
   }

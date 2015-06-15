@@ -1,9 +1,8 @@
 Package: RedisAPI
-Title: Wrapper For Redis API
+Title: Wrapper for 'Redis' 'API'
 Version: 0.1.3
-Authors@R: "Rich FitzJohn <rich.fitzjohn@gmail.com> [aut, cre]"
-Description: Automatically generated R6 interface to the full
-  'hiredis' API.  Generated functions are faithful to the 'hiredis'
+Description: Automatically generated 'R6' interface to the full
+  'hiredis' 'API'.  Generated functions are faithful to the 'hiredis'
   documentation while attempting to match R's argument semantics.
   Serialisation is left up to the user and binary serialisation is not
   currently supported.

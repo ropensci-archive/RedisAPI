@@ -6,6 +6,19 @@ test_that("connection", {
   expect_that(con$exec("PING"), equals("PONG"))
 })
 
+test_that("defaults", {
+  skip_if_no_redis()
+  Sys.setenv("REDIS_HOST"="localhost")
+  con <- hiredis()
+  expect_that(con$host, equals("localhost"))
+  Sys.setenv("REDIS_PORT"="1234")
+  expect_that(con <- hiredis(), throws_error("Connection refused"))
+  Sys.unsetenv(c("REDIS_PORT", "REDIS_HOST"))
+  con <- hiredis()
+  expect_that(con$host, equals("127.0.0.1"))
+  expect_that(con$port, equals(6379))
+})
+
 test_that("use", {
   skip_if_no_redis()
   r <- hiredis()

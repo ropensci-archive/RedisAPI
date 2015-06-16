@@ -34,8 +34,12 @@ parse_info <- function(x) {
 ##' includes methods for all Redis commands.
 ##'
 ##' @title Interface to Redis
-##' @param host Hostname (default is the localhost)
-##' @param port Port to connect on (default is Redis' default of 6379)
+##' @param host Hostname.  Default is to look up the value of the
+##' environment variable \code{REDIS_HOST} and then to default to the
+##' value \code{127.0.0.1} (localhost).
+##' @param port Port to connect on.  Default is to look up the value
+##' of the environment variable \code{REDIS_PORT} and then to default
+##' to the value "6379".
 ##' @export
 ##' @examples
 ##' # Only run if a Redis server is running
@@ -45,7 +49,9 @@ parse_info <- function(x) {
 ##'   r$SET("foo", "bar")
 ##'   r$GET("foo")
 ##' }
-hiredis <- function(host="127.0.0.1", port=6379) {
+hiredis <- function(host=Sys.getenv("REDIS_HOST", "127.0.0.1"),
+                    port=Sys.getenv("REDIS_PORT", 6379)) {
+  port <- as.integer(port)
   redis_api(redis_context(host, port)$execv,
             host, port, "RcppRedis")
 }

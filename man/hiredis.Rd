@@ -5,14 +5,19 @@
 \alias{redis_available}
 \title{Interface to Redis}
 \usage{
-hiredis(host = "127.0.0.1", port = 6379)
+hiredis(host = Sys.getenv("REDIS_HOST", "127.0.0.1"),
+  port = Sys.getenv("REDIS_PORT", 6379))
 
 redis_available(...)
 }
 \arguments{
-\item{host}{Hostname (default is the localhost)}
+\item{host}{Hostname.  Default is to look up the value of the
+environment variable \code{REDIS_HOST} and then to default to the
+value \code{127.0.0.1} (localhost).}
 
-\item{port}{Port to connect on (default is Redis' default of 6379)}
+\item{port}{Port to connect on.  Default is to look up the value
+of the environment variable \code{REDIS_PORT} and then to default
+to the value "6379".}
 
 \item{...}{Arguments passed from \code{redis_available} to
 \code{hiredis}}

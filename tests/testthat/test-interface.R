@@ -2,6 +2,7 @@ context("interface")
 
 ## Multiple args OK:
 test_that("MSET / MGET / DEL", {
+  skip_if_no_redis()
   r <- hiredis()
   r$MSET(letters, LETTERS)
   expect_that(r$MGET(letters), equals(as.list(LETTERS)))
@@ -12,6 +13,7 @@ test_that("MSET / MGET / DEL", {
 
 ## SORT is the most complicated, so lets nail that
 test_that("SORT", {
+  skip_if_no_redis()
   key <- rand_str()
   i <- sample(20)
   r <- hiredis()
@@ -49,6 +51,7 @@ test_that("SORT", {
 
 ## SCAN does some cool things; let's try that, too.
 test_that("SCAN", {
+  skip_if_no_redis()
   r <- hiredis()
 
   prefix <- paste0(rand_str(), ":")

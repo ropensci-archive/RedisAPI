@@ -2,17 +2,15 @@
 
 [![Build Status](https://travis-ci.org/ropensci/RedisAPI.png?branch=master)](https://travis-ci.org/ropensci/RedisAPI)
 
-Automatically generated R6 interface to the full [Redis](http://redis.io) API.  The generated functions are faithful to the Redis [documentation](https//redis.io/commands) while attempting to match R's argument and vectorisation semantics.
+
+
+Automatically generated R6 interface to the full [Redis](http://redis.io) API.  The generated functions are faithful to the Redis [documentation](http://redis.io/commands) while attempting to match R's argument and vectorisation semantics.
 
 The most common use is with the [`RcppRedis`](https://github.com/eddelbuettel/rcppredis) package.  To create a connection:
 
 
 ```r
 con <- RedisAPI::hiredis()
-```
-
-```
-## Loading required namespace: RcppRedis
 ```
 
 That connection has many (149) methods. Automatically generated methods are in all-caps, following the Redis documentation.  Unlike Redis they are *case sensitive*.
@@ -75,7 +73,7 @@ object_to_string(2)
 ```
 
 ```
-## [1] "A\n2\n196866\n131840\n14\n1\n2\n"
+## [1] "A\n2\n197120\n131840\n14\n1\n2\n"
 ```
 
 ```r
@@ -119,16 +117,16 @@ As a simple example of what could be built on `RedisAPI` there is an example `rd
 
 
 ```r
-r <- RedisAPI::rdb(RedisAPI::hiredis)
+r <- RedisAPI::rdb(RedisAPI::hiredis())
 r$set("foo", runif(20))
 r$get("foo")
 ```
 
 ```
-##  [1] 0.430551282 0.016760477 0.203836874 0.000770672 0.741480410
-##  [6] 0.165574652 0.570277685 0.126775133 0.787623388 0.851018365
-## [11] 0.863702937 0.633151179 0.045713819 0.984373342 0.919393083
-## [16] 0.085170856 0.280973450 0.146470999 0.369722290 0.637937088
+##  [1] 0.26550866 0.37212390 0.57285336 0.90820779 0.20168193 0.89838968
+##  [7] 0.94467527 0.66079779 0.62911404 0.06178627 0.20597457 0.17655675
+## [13] 0.68702285 0.38410372 0.76984142 0.49769924 0.71761851 0.99190609
+## [19] 0.38003518 0.77744522
 ```
 
 ```r
@@ -136,16 +134,18 @@ r$keys()
 ```
 
 ```
-## [1] "foo"
+## [1] "mykey"      "mtcars"     "foo"        "a_function"
 ```
 
 For a more interesting example, see [`storr`](https://github.com/richfitz/storr)
 
-# Alternative Redis support
+# rlite support
 
-If you'd prefer to use [`rredis`](http://cran.r-project.org/web/packages/rredis/index.html) you can use `RedisAPI::redis_api(rredis::redisCmd)`, after running `rredis::redisConnect()`.
+If [`rrlite`](https://github.com/ropensci/rrlite) is installed, you can create hirlite connections with `rrlite::hirlite()` which has the same set of generated interfaces.  Not all commands are supported (for example, `SCAN` and `BLPOP`) but `hirlite` will throw an error if unsupported commands are used.
 
-If [`rrlite`](https://github.com/ropensci/rrlite) is installed, you can create hirlite connections with `rrlite::hirlite()` which has the same set of generated interfaces.
+# Documentation
+
+There is a vignette (`vignette("RedisAPI")`) that outlines the basic idea.  Source is [here](vignette/RedisAPI.Rmd), and rendered [here](http://htmlpreview.github.io/?https://raw.githubusercontent.com/ropensci/RedisAPI/master/inst/doc/RedisAPI.html)
 
 ## Meta
 

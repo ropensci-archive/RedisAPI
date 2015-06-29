@@ -34,5 +34,8 @@ redis_help <- function(command) {
     stop(sprintf("Command '%s' not valid", toupper(command)))
   }
   cat(paste0(dat$summary, "\n"))
-  print(args(redis_api_generator$public_methods[[tolower(command)]]))
+  f <- redis_api_generator$public_methods[[toupper(command)]]
+  args <- capture.output(args(f))
+  cat(paste0(paste(args[-length(args)], collapse="\n"), "\n"))
+  cat(sprintf("See: http://redis.io/commands/%s\n", tolower(command)))
 }

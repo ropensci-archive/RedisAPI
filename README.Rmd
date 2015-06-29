@@ -2,7 +2,11 @@
 
 [![Build Status](https://travis-ci.org/ropensci/RedisAPI.png?branch=master)](https://travis-ci.org/ropensci/RedisAPI)
 
-Automatically generated R6 interface to the full [Redis](http://redis.io) API.  The generated functions are faithful to the Redis [documentation](https//redis.io/commands) while attempting to match R's argument and vectorisation semantics.
+```{r, echo=FALSE}
+set.seed(1)
+```
+
+Automatically generated R6 interface to the full [Redis](http://redis.io) API.  The generated functions are faithful to the Redis [documentation](http://redis.io/commands) while attempting to match R's argument and vectorisation semantics.
 
 The most common use is with the [`RcppRedis`](https://github.com/eddelbuettel/rcppredis) package.  To create a connection:
 
@@ -79,9 +83,13 @@ r$keys()
 
 For a more interesting example, see [`storr`](https://github.com/richfitz/storr)
 
-# Alternative Redis support
+# rlite support
 
-If [`rrlite`](https://github.com/ropensci/rrlite) is installed, you can create hirlite connections with `rrlite::hirlite()` which has the same set of generated interfaces.
+If [`rrlite`](https://github.com/ropensci/rrlite) is installed, you can create hirlite connections with `rrlite::hirlite()` which has the same set of generated interfaces.  Not all commands are supported (for example, `SCAN` and `BLPOP`) but `hirlite` will throw an error if unsupported commands are used.
+
+# Documentation
+
+There is a vignette (`vignette("RedisAPI")`) that outlines the basic idea.  Source is [here](vignette/RedisAPI.Rmd), and rendered [here](http://htmlpreview.github.io/?https://raw.githubusercontent.com/ropensci/RedisAPI/master/inst/doc/RedisAPI.html)
 
 ## Meta
 

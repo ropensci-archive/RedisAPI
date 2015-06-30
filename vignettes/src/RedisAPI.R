@@ -12,8 +12,10 @@
 library(RedisAPI)
 
 ##+ echo=FALSE,results="hide"
-library(RcppRedis)
-RedisAPI::hiredis()$DEL(c("mykey", "mylist", "mylist2"))
+library(methods)
+knitr::opts_chunk$set(error=FALSE)
+RedisAPI::hiredis()$DEL(c("mykey", "mylist", "mylist2", "rlist"))
+set.seed(1)
 
 ## The main feature of `RedisAPI` is to provide a full interface to
 ## the Redis API.  It provdes access to `r length(grep("^[A-Z]",
@@ -24,24 +26,71 @@ RedisAPI::hiredis()$DEL(c("mykey", "mylist", "mylist2"))
 ## with [`RcppRedis`](https://github.com/eddelbuettel/rcppredis)
 ## and [`rrlite`](https://github.com/ropensci/rrlite).
 
-## It is possible to build friendly applications on top of this, for
-## example, the built in `rdb` R key-value store and
+## It is possible to build user-friendly applications on top of this,
+## for example, the built in `rdb` R key-value store,
 ## [`storr`](https://github.com/richfitz/storr) which provides a
 ## content-addressable object store, and
-## [`rrqueue`](https://github.com/richfitz/rrqueue) which implements a
-## scalable queuing system.
+## [`rrqueue`](https://github.com/traitecoevo/rrqueue) which
+## implements a scalable queuing system.
 
 ## # Redis API
 
-## This gives you all the power of Redis, but you will have to
-## manually serialise/deserialise all complicated R objects.
+## Because this package is simply a wrapper around the RedisAPI, the
+## main source of documentation is the Redis help itself,
+## `http://redis.io` (Unfortunately, the CRAN submission system
+## incorrectly complains and thinks that website is a dead link so I
+## can't include it without risking a scolding).  The Redis
+## documentation is very readable, thorough and contains great
+## examples.
 
+## `RedisAPI` tries to bridge to this help.  Redis' commands are
+## "grouped" by data types or operation type; use
+## \code{redis_commands_groups()} to see these groups:
+redis_commands_groups()
+
+## To see command listed within a group, use the `redis_commands`
+## function:
+redis_commands("string")
+
+## Then use the function `redis_help` to get help for a particular
+## command:
+redis_help("SET")
+
+## The function definition here is the definition of the method you
+## will use within the retuned object (see below).  A default argument
+## of `NULL` indicates that a command is optional (`EX`, `PX` and
+## `condition` here are all optional).  The sentence is straight from
+## the Redis documentation, and the link will take you to the full
+## documentation on the Redis site.
+
+## This gives you all the power of Redis, but you will have to
+## manually serialise/deserialise all complicated R objects (i.e.,
+## everything other than logicals, numbers or strings).  Similarly,
+## you are responsible for type coersion/deserialisation when
+## retrieving data at the other end.
+
+## The main entry point for creating a `redis_api` object is the
+## `hiredis` function:
 r <- RedisAPI::hiredis()
 
-## The `redis_api` object is an [`R6`](https://github.com/wch/R6)
-## class with many methods, corresponding to different Redis commands.
-## For example, `SET` and `GET`:
+## By default, it will connect to a database running on the local
+## machine (`localhost`, or ip `127.0.0.1`) and port 6379.  The two
+## arguments that `hiredis` accepts are `host` and `port` if you need
+## to change these to point at a different location.  Alternatively,
+## you can set the `REDIS_HOST` and `REDIS_PORT` environment variables
+## to appropriate values and then use `hiredis()` with no arguments.
 
+## The `redis_api` object is an [`R6`](https://github.com/wch/R6)
+## class with _many_ methods, each corresponding to a different Redis
+## command.
+##+ eval=FALSE
+r
+##+ echo=FALSE
+res <- capture.output(print(r))
+res <- c(res[1:6], "    ...", res[(length(res) - 3):(length(res) - 1)])
+writeLines(res)
+
+## For example, `SET` and `GET`:
 r$SET("mykey", "mydata") # set the key "mykey" to the value "mydata"
 r$GET("mykey")
 
@@ -59,32 +108,40 @@ r$SET("mylist", object_to_string(1:10))
 r$GET("mylist")
 string_to_object(r$GET("mylist"))
 
-## This is how the `rdb` object is implemented!
+## This is how the `rdb` object is implemented (see below).
 
 ## However, Redis offers far better ways of holding lists, if that is the aim:
 
 r$RPUSH("mylist2", 1:10)
 
 ## (the returned value `10` indicates that the list "mylist2" is 10
-## elements long).  There are [lots of
-## commands](http://redis.io/commands/#list) for operating on lits,
-## but you can do things like
+## elements long).  There are lots of commands for operating on lists:
+
+RedisAPI::redis_commands("list")
+
+## For example, you can do things like;
 
 ## * get an element by its index (note tht this uses C-style base0
 ## indexing for consistency with the `Redis` documentation rather than
 ## R's semantics)
+RedisAPI::redis_help("LINDEX")
 r$LINDEX("mylist2", 1)
 
 ## * set an element by its index
+RedisAPI::redis_help("LSET")
 r$LSET("mylist2", 1, "carrot")
 
 ## * get all of a list:
+RedisAPI::redis_help("LRANGE")
 r$LRANGE("mylist2", 0, -1)
 
 ## * or part of it:
 r$LRANGE("mylist2", 0, 2)
 
 ## * pop elements off the front or back
+RedisAPI::redis_help("LLEN")
+RedisAPI::redis_help("LPOP")
+RedisAPI::redis_help("RPOP")
 r$LLEN("mylist2")
 r$LPOP("mylist2")
 r$RPOP("mylist2")
@@ -92,12 +149,10 @@ r$LLEN("mylist2")
 
 ## Of course, each element of the list can be an R object if you run
 ## it through `object_to_string`:
-
 r$LPUSH("mylist2", object_to_string(1:10))
 
 ## but you'll be responsible for converting that back (and detecting
 ## / knowing that this needs doing)
-
 dat <- r$LRANGE("mylist2", 0, 2)
 dat
 dat[[1]] <- string_to_object(dat[[1]])
@@ -146,10 +201,7 @@ db$get("a_function")(pi / 2) # 1
 
 ## First, a generator object that sets up a new list at `key` within
 ## the database `r`.
-rlist <- function(..., key=NULL, r=RedisAPI::hiredis()) {
-  if (is.null(key)) {
-    key <- paste(sample(letters, 32, replace=TRUE), collapse="")
-  }
+rlist <- function(..., key="rlist", r=RedisAPI::hiredis()) {
   dat <- vapply(c(...), object_to_string, character(1))
   r$RPUSH(key, dat)
   ret <- list(r=r, key=key)
@@ -185,11 +237,14 @@ obj2 <- obj
 obj2[[2]] <- obj2[[2]] * 2
 obj[[2]] == obj2[[2]]
 
+## For a better version of this, see
+## [storr](https://github.com/richfitz/storr) which does similar things to implement "[indexable serialisation](http://htmlpreview.github.io/?https://raw.githubusercontent.com/richfitz/storr/master/inst/doc/storr.html#lists-and-indexable-serialisation)"
+
 ## What would be nice is a set of tools for working with any R/`Redis`
 ## package that can convert R objects into `Redis` data structures so
 ## that they can be accessed in pieces even if they are far too big to
 ## fit into memory.  Of course, these objects could be read/written by
-## programs *other* than R if they also support `Redis`.
-
-# cleanup:
-r$DEL(c("mykey", "mylist", "mylist2"))
+## programs *other* than R if they also support `Redis`.  We have made
+## some approaches towards that with the
+## [docdbi](https://github.com/ropensci/docdbi) package, but this is a
+## work in progress.

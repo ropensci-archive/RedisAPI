@@ -1,5 +1,3 @@
-# Sample .travis.yml for R projects from https://github.com/craigcitro/r-travis
-
 language: c
 
 sudo: required
@@ -28,6 +26,7 @@ install:
 
 script:
   - ./travis-tool.sh run_tests
+  - make install vignettes
   - ./extra/revdep.R
 
 after_failure:

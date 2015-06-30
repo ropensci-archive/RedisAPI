@@ -22,7 +22,7 @@ build:
 
 README.md: README.Rmd
 	Rscript -e 'library(methods); devtools::load_all(); knitr::knit("README.Rmd")'
-	sed -i.bak 's/[[:space:]]*$$//' README.md
+	sed -i.bak 's/[[:space:]]*$$//' $@
 	rm -f $@.bak
 
 check: build
@@ -36,10 +36,20 @@ check_all:
 clean:
 	rm -f src/*.o src/*.so
 
-vignettes/RedisAPI.Rmd: vignettes/src/RedisAPI.R
+vignettes/src/RedisAPI.Rmd: vignettes/src/RedisAPI.R
 	${RSCRIPT} -e 'library(sowsear); sowsear("$<", output="$@")'
 
-vignettes: vignettes/RedisAPI.Rmd
+vignettes/RedisAPI.Rmd: vignettes/src/RedisAPI.Rmd
+	cd vignettes/src && ${RSCRIPT} -e 'knitr::knit("RedisAPI.Rmd")'
+	mv vignettes/src/RedisAPI.md $@
+	sed -i.bak 's/[[:space:]]*$$//' $@
+	rm -f $@.bak
+
+vignettes_install: vignettes/RedisAPI.Rmd
 	${RSCRIPT} -e 'library(methods); devtools::build_vignettes()'
+
+vignettes:
+	rm -f vignettes/RedisAPI.Rmd
+	make vignettes_install
 
 .PHONY: clean all test document install vignettes

@@ -4,3 +4,4 @@
 ^notes\.md$
 ^README\.Rmd$
 ^revdep$
+^vignettes/src$

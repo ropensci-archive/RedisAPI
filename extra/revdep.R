@@ -11,6 +11,11 @@ packages <- c("ropensci/rrlite",
               "richfitz/storr",
               "richfitz/RedisHeartbeat",
               "traitecoevo/rrqueue")
+
+## This is dropped for now because there's an issue that I only see on
+## travis (can't replicate on OS/X or docker or see in typical usage).
+packages <- setdiff(packages, "traitecoevo/rrqueue")
+
 if (Sys.getenv("USER") == "rich") {
   prefix <- "/Users/rich/Documents/src"
   packages <- basename(packages)

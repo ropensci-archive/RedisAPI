@@ -17,7 +17,7 @@ test_that("Round trip a data.frame disassembly (cells)", {
 
 test_that("Round trip (via Redis)", {
   skip_if_no_redis()
-  db <- RedisAPI::hiredis()
+  db <- hiredis()
 
   redis_object_set("key1", mtcars, db)
   expect_that(redis_object_get("key1", db), equals(mtcars))

@@ -1,6 +1,11 @@
 ##' Support for iterating with \code{SCAN}.  Note that this will
 ##' generalise soon to support collecting output, \code{SSCAN} and
 ##' other variants, etc.
+##'
+##' The functions \code{scan_del} and \code{scan_find} are example
+##' functions that delete and find all keys corresponding to a given
+##' pattern.
+##'
 ##' @title Iterate over keys using SCAN
 ##' @param con A \code{redis_api} object
 ##' @param callback Function that takes a character vector of keys and
@@ -36,4 +41,17 @@ scan_del <- function(con, pattern, count=NULL) {
   }
   scan_apply(con, del, pattern, count)
   n
+}
+
+##' @export
+##' @rdname scan_apply
+scan_find <- function(con, pattern, count=NULL) {
+  res <- character(0)
+  find <- function(keys) {
+    if (length(keys) > 0L) {
+      res <<- c(res, keys)
+    }
+  }
+  RedisAPI::scan_apply(con, find, pattern, count)
+  res
 }

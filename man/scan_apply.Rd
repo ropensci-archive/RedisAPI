@@ -3,11 +3,14 @@
 \name{scan_apply}
 \alias{scan_apply}
 \alias{scan_del}
+\alias{scan_find}
 \title{Iterate over keys using SCAN}
 \usage{
 scan_apply(con, callback, pattern = NULL, count = NULL)
 
 scan_del(con, pattern, count = NULL)
+
+scan_find(con, pattern, count = NULL)
 }
 \arguments{
 \item{con}{A \code{redis_api} object}
@@ -25,5 +28,10 @@ is 10)}
 Support for iterating with \code{SCAN}.  Note that this will
 generalise soon to support collecting output, \code{SSCAN} and
 other variants, etc.
+}
+\details{
+The functions \code{scan_del} and \code{scan_find} are example
+functions that delete and find all keys corresponding to a given
+pattern.
 }
 

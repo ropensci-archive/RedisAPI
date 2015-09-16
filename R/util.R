@@ -78,3 +78,17 @@ assert_length_or_null <- function(x, n, name=deparse(substitute(x))) {
     assert_length(x, n, name)
   }
 }
+
+assert_named <- function(x,
+                         empty_can_be_unnamed=TRUE,
+                         unique_names=TRUE,
+                         name=deparse(substitute(x))) {
+  nx <- names(x)
+  if (is.null(nx) || any(nx == "")) {
+    if (length(x) > 0 || !empty_can_be_unnamed) {
+      stop(sprintf("%s must be named", name), call.=FALSE)
+    }
+  } else if (unique_names && any(duplicated(nx))) {
+    stop(sprintf("%s must have unique names", name), call.=FALSE)
+  }
+}

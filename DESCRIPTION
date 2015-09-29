@@ -1,6 +1,6 @@
 Package: RedisAPI
 Title: Wrapper for 'Redis' 'API'
-Version: 0.1.6
+Version: 0.1.7
 Description: Automatically generated 'R6' interface to the full
   'hiredis' 'API'.  Generated functions are faithful to the 'hiredis'
   documentation while attempting to match R's argument semantics.

@@ -58,6 +58,9 @@ test_that("from_redis_hash", {
 
   expect_that(from_redis_hash(con, key, c("a", "xxx")),
               equals(c(a="1", xxx=NA_character_)))
+
+  expect_that(from_redis_hash(con, key, character(0)),
+              equals(setNames(character(0), character(0))))
 })
 
 test_that("redis_time", {

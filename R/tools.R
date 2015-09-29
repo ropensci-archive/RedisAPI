@@ -67,6 +67,8 @@ from_redis_hash <- function(con, key, fields=NULL, f=as.character,
     dim(x) <- c(2, length(x) / 2)
     setNames(f(x[2, ]),
              as.character(x[1, ]))
+  } else if (length(fields) == 0L) {
+    setNames(f(vector("list", 0)), character(0))
   } else {
     x <- con$HMGET(key, fields)
     ## NOTE: This is needed for the case where missing=NULL, otherwise

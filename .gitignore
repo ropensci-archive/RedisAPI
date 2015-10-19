@@ -5,3 +5,5 @@ extra/redis-doc
 notes.md
 inst/doc
 revdep
+RedisAPI.Rcheck
+RedisAPI_*.tar.gz

@@ -13,7 +13,7 @@ test_that("interleave", {
               equals(list("a", "c", "b", "d")))
 
   ## Things with raw vectors:
-  obj <- lapply(1:2, serialize, NULL)
+  obj <- lapply(1:2, object_to_bin)
   expect_that(interleave(c("a", "b"), obj),
               equals(list("a", obj[[1]], "b", obj[[2]])))
 

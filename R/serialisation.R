@@ -20,3 +20,13 @@ object_to_string <- function(obj) {
 string_to_object <- function(str) {
   unserialize(charToRaw(str))
 }
+
+##' @importFrom RApiSerialize serializeToRaw
+C_serializeToRaw <- NULL
+C_unserializeFromRaw <- NULL
+object_to_bin <- function(obj) {
+  .Call(C_serializeToRaw, obj, PACKAGE="RedisAPI")
+}
+bin_to_object <- function(bin) {
+  .Call(C_unserializeFromRaw, bin, PACKAGE="RedisAPI")
+}

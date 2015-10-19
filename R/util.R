@@ -10,8 +10,28 @@ vlapply <- function(X, FUN, ...) {
 vnapply <- function(X, FUN, ...) {
   vapply(X, FUN, numeric(1), ...)
 }
+
 interleave <- function(a, b) {
-  c(rbind(a, b, deparse.level=0))
+  assert_length(b, length(a))
+  convert <- function(x) {
+    if (is.logical(x)) {
+      as.character(as.integer(x))
+    } else if (is.list(x)) {
+      x
+    } else {
+      as.character(x)
+    }
+  }
+  join <- function(a, b) {
+    c(rbind(a, b))
+  }
+  a <- convert(a)
+  b <- convert(b)
+  if (is.character(a) && is.character(b)) {
+    join(a, b)
+  } else {
+    join(as.list(a), as.list(b))
+  }
 }
 
 command <- function(cmd, value, combine) {
@@ -90,5 +110,38 @@ assert_named <- function(x,
     }
   } else if (unique_names && any(duplicated(nx))) {
     stop(sprintf("%s must have unique names", name), call.=FALSE)
+  }
+}
+
+Sys_getenv <- function(x, unset=NULL) {
+  assert_scalar_character(x)
+  ret <- Sys.getenv(x, NA_character_)
+  if (is.na(ret)) unset else ret
+}
+
+drop_null <- function(x) {
+  x[!vlapply(x, is.null)]
+}
+
+modify_list <- function(x, val, name=deparse(substitute(x))) {
+  warn_unknown(name, val, names(x))
+  modifyList(x, val)
+}
+
+warn_unknown <- function(name, defn, known) {
+  stop_unknown(name, defn, known, FALSE)
+}
+
+## Warn if keys are found in an object that are not in a known set.
+stop_unknown <- function(name, defn, known, error=TRUE) {
+  unknown <- setdiff(names(defn), known)
+  if (length(unknown) > 0) {
+    msg <- sprintf("Unknown fields in %s: %s",
+                   name, paste(unknown, collapse=", "))
+    if (error) {
+      stop(msg, call.=FALSE)
+    } else {
+      warning(msg, immediate.=TRUE, call.=FALSE)
+    }
   }
 }

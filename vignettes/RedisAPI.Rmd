@@ -1,7 +1,7 @@
 ---
 title: "Using Redis with RedisAPI"
 author: "Rich FitzJohn"
-date: "2015-06-30"
+date: "2015-10-22"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Using Redis with RedisAPI}
@@ -17,11 +17,11 @@ library(RedisAPI)
 
 
 The main feature of `RedisAPI` is to provide a full interface to
-the Redis API.  It provdes access to 149 Redis
+the Redis API.  It provdes access to 158 Redis
 commands s a set of user-friendly R functions that do basic error
 checking.  This is the level that new applications would be build
 from, and `rdb` is built on top of a *driver*, which allows use
-with [`RcppRedis`](https://github.com/eddelbuettel/rcppredis)
+with [`Redux`](https://github.com/eddelbuettel/redux)
 and [`rrlite`](https://github.com/ropensci/rrlite).
 
 It is possible to build user-friendly applications on top of this,
@@ -50,9 +50,10 @@ redis_commands_groups()
 ```
 
 ```
-##  [1] "connection"   "generic"      "hash"         "hyperloglog"
-##  [5] "list"         "pubsub"       "scripting"    "server"
-##  [9] "set"          "sorted_set"   "string"       "transactions"
+##  [1] "cluster"      "connection"   "generic"      "geo"
+##  [5] "hash"         "hyperloglog"  "list"         "pubsub"
+##  [9] "scripting"    "server"       "set"          "sorted_set"
+## [13] "string"       "transactions"
 ```
 
 To see command listed within a group, use the `redis_commands`
@@ -121,10 +122,10 @@ r
 ```
 ## <redis_api>
 ##   Public:
+##     .command: function
+##     .pipeline: function
+##     .subscribe: function
 ##     APPEND: function
-##     AUTH: function
-##     BGREWRITEAOF: function
-##     BGSAVE: function
 ##     ...
 ##     ZSCAN: function
 ##     ZSCORE: function
@@ -138,7 +139,7 @@ r$SET("mykey", "mydata") # set the key "mykey" to the value "mydata"
 ```
 
 ```
-## [1] "OK"
+## [Redis: OK]
 ```
 
 ```r
@@ -161,7 +162,7 @@ s # ew. but this does encode everything about this object
 ```
 
 ```
-## [1] "A\n2\n197120\n131840\n13\n10\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+## [1] "A\n2\n197121\n131840\n13\n10\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
 ```
 
 ```r
@@ -179,7 +180,7 @@ r$SET("mylist", object_to_string(1:10))
 ```
 
 ```
-## [1] "OK"
+## [Redis: OK]
 ```
 
 ```r
@@ -187,7 +188,7 @@ r$GET("mylist")
 ```
 
 ```
-## [1] "A\n2\n197120\n131840\n13\n10\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+## [1] "A\n2\n197121\n131840\n13\n10\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
 ```
 
 ```r
@@ -267,7 +268,7 @@ r$LSET("mylist2", 1, "carrot")
 ```
 
 ```
-## [1] "OK"
+## [Redis: OK]
 ```
 
 * get all of a list:
@@ -420,7 +421,7 @@ dat
 
 ```
 ## [[1]]
-## [1] "A\n2\n197120\n131840\n13\n10\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+## [1] "A\n2\n197121\n131840\n13\n10\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
 ##
 ## [[2]]
 ## [1] "carrot"
@@ -462,7 +463,7 @@ db$keys()
 ```
 
 ```
-## [1] "mykey"      "mtcars"     "a_function"
+## [1] "a_function" "mtcars"     "foo"        "mykey"
 ```
 
 R objects can be stored against keys, for example:
@@ -473,7 +474,7 @@ db$keys()
 ```
 
 ```
-## [1] "mykey"      "mtcars"     "a_function"
+## [1] "a_function" "mtcars"     "foo"        "mykey"
 ```
 
 Retrieve the value of a key with `$get`:

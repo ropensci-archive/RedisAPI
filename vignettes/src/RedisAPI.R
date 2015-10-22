@@ -23,7 +23,7 @@ set.seed(1)
 ## commands s a set of user-friendly R functions that do basic error
 ## checking.  This is the level that new applications would be build
 ## from, and `rdb` is built on top of a *driver*, which allows use
-## with [`RcppRedis`](https://github.com/eddelbuettel/rcppredis)
+## with [`Redux`](https://github.com/eddelbuettel/redux)
 ## and [`rrlite`](https://github.com/ropensci/rrlite).
 
 ## It is possible to build user-friendly applications on top of this,

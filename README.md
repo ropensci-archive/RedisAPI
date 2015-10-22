@@ -2,15 +2,18 @@
 
 [![Build Status](https://travis-ci.org/ropensci/RedisAPI.png?branch=master)](https://travis-ci.org/ropensci/RedisAPI)
 
+
+
 Automatically generated R6 interface to the full [Redis](http://redis.io) API.  The generated functions are faithful to the Redis [documentation](http://redis.io/commands) while attempting to match R's argument and vectorisation semantics.
 
 As of version `0.3.0` RedisAPI supports binary serialisation of almost anything; keys, values, etc.  Just don't expect Redis to do anything sensible with the values - you won't be able to compute on directly.
+
 
 ```r
 con <- RedisAPI::hiredis()
 ```
 
-That connection has many (149) methods. Automatically generated methods are in all-caps, following the Redis documentation.  Unlike Redis they are *case sensitive*.
+That connection has many (158) methods. Automatically generated methods are in all-caps, following the Redis documentation.  Unlike Redis they are *case sensitive*.
 
 ```r
 con
@@ -47,7 +50,7 @@ con$HMSET("myhash", c("a", "b", "c"), c(1, 2, 3))
 ```
 
 ```
-## [1] "OK"
+## [Redis: OK]
 ```
 
 ```r
@@ -70,7 +73,7 @@ object_to_string(2)
 ```
 
 ```
-## [1] "A\n2\n197120\n131840\n14\n1\n2\n"
+## [1] "A\n2\n197121\n131840\n14\n1\n2\n"
 ```
 
 ```r
@@ -89,7 +92,7 @@ con$SET(object_to_string(1:10), object_to_string(iris))
 ```
 
 ```
-## [1] "OK"
+## [Redis: OK]
 ```
 
 ```r
@@ -131,7 +134,7 @@ r$keys()
 ```
 
 ```
-## [1] "mykey"      "mtcars"     "foo"        "a_function"
+## [1] "foo"
 ```
 
 For a more interesting example, see [`storr`](https://github.com/richfitz/storr)

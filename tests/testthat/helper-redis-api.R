@@ -2,7 +2,7 @@ skip_if_no_redis <- function() {
   if (redis_available()) {
     return()
   }
-  skip("Redis or RcppRedis are not available")
+  skip("Redis is not available")
 }
 
 big_fake_data <- function(nr) {

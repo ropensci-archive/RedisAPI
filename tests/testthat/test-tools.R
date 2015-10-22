@@ -32,7 +32,7 @@ test_that("redis_multi", {
   expect_that(con$GET(id), equals("2"))
   expect_that(err, is_a("try-error"))
 
-  expect_that(con$EXEC(), equals("ERR EXEC without MULTI"))
+  expect_that(con$EXEC(), throws_error("ERR EXEC without MULTI"))
 })
 
 test_that("from_redis_hash", {

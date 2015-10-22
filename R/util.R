@@ -11,40 +11,6 @@ vnapply <- function(X, FUN, ...) {
   vapply(X, FUN, numeric(1), ...)
 }
 
-interleave <- function(a, b) {
-  assert_length(b, length(a))
-  convert <- function(x) {
-    if (is.logical(x)) {
-      as.character(as.integer(x))
-    } else if (is.list(x)) {
-      x
-    } else {
-      as.character(x)
-    }
-  }
-  join <- function(a, b) {
-    c(rbind(a, b))
-  }
-  a <- convert(a)
-  b <- convert(b)
-  if (is.character(a) && is.character(b)) {
-    join(a, b)
-  } else {
-    join(as.list(a), as.list(b))
-  }
-}
-
-command <- function(cmd, value, combine) {
-  n <- length(value)
-  if (n == 0L) {
-    NULL
-  } else if (n == 1L || combine) {
-    c(cmd, value)
-  } else {
-    interleave(rep_len(cmd, length(value)), value)
-  }
-}
-
 assert_match_value <- function(x, choices, name=deparse(substitute(x))) {
   assert_scalar_character(x)
   if (!(x %in% choices)) {
@@ -90,6 +56,12 @@ assert_scalar_character <- function(x, name=deparse(substitute(x))) {
 assert_scalar_or_null <- function(x, name=deparse(substitute(x))) {
   if (!is.null(x)) {
     assert_scalar(x, name)
+  }
+}
+
+assert_scalar_or_raw <- function(x, name=deparse(substitute(x))) {
+  if (length(x) != 1L && !is.raw(x)) {
+    stop(sprintf("%s must be a scalar", name), call.=FALSE)
   }
 }
 

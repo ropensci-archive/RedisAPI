@@ -47,7 +47,7 @@ is_field <- function(name, args) {
   }
 }
 
-hiredis_cmd <- function(name, args) {
+hiredis_cmd <- function(name, args, standalone=FALSE) {
   is_multiple <- is_field("multiple", args)
   is_command <- is_field("command", args)
   is_paired <- viapply(args$name, length) > 1L
@@ -63,15 +63,13 @@ hiredis_cmd <- function(name, args) {
   ## need to be same length, share optional status.
   if (any(is_paired)) {
     if (sum(is_paired) > 1L) {
-      stop()
+      stop("multiple paired groups")
     }
-    if (length(args$name[[which(is_paired)]]) > 2L) {
-      stop()
-    }
+    len <- length(args$name[[which(is_paired)]])
     args1 <- args[!is_paired, , drop=FALSE]
 
     ## Lots of assumptions here:
-    args2 <- args[rep(which(is_paired), 2L), ]
+    args2 <- args[rep(which(is_paired), len), ]
     args2$name <- args$name[[which(is_paired)]]
     args2$type <- args$type[[which(is_paired)]]
 
@@ -157,9 +155,11 @@ hiredis_cmd <- function(name, args) {
                                 args$command_length[is_command] > 1L)
   }
 
-  run <- sprintf("self$run(c(%s))",
-                  paste(c(dquote(name), vars), collapse=", "))
-
+  args <- paste(c(dquote(name), vars), collapse=", ")
+  run <- sprintf("list(%s)", args)
+  if (!standalone) {
+    run <- sprintf("self$.command(%s)", run)
+  }
   fn_body <- paste(indent(c(check, pair, run)), collapse="\n")
   fmt <- "%s=function(%s) {\n%s\n}"
   sprintf(fmt, toupper(name), r_fn_args, fn_body)
@@ -189,22 +189,54 @@ generate <- function(cmds) {
   template <- 'redis_api_generator <- R6::R6Class(
   "redis_api",
   public=list(
-    host=NULL,
-    port=NULL,
-    run=NULL,
-    type=NULL,
-    initialize=function(run, host=NULL, port=NULL, type=NULL) {
-      self$run  <- run
-      self$host <- host
-      self$port <- port
-      self$type <- type
+    config=NULL,
+    reconnect=NULL,
+    ## Driver functions
+    .command=NULL,
+    .pipeline=NULL,
+    .subscribe=NULL,
+
+    initialize=function(obj) {
+      self$config     <- obj$config()
+      self$reconnect  <- hiredis_function(obj$reconnect)
+      self$.command   <- hiredis_function(obj$command, TRUE)
+      self$.pipeline  <- hiredis_function(obj$pipeline)
+      self$.subscribe <- hiredis_function(obj$subscribe)
     },
+
+    pipeline=function(..., .commands=list(...)) {
+      ret <- self$.pipeline(.commands)
+      if (!is.null(names(.commands))) {
+        names(ret) <- names(.commands)
+      }
+      ret
+    },
+
+    ## TODO: Pattern is not supported here yet.
+    subscribe=function(channel, transform=NULL, terminate=NULL,
+                       envir=parent.frame(), collect=TRUE, n=Inf) {
+      collector <- make_collector(collect)
+      callback <- make_callback(transform, terminate, collector$add, n)
+      self$.subscribe(channel, callback, envir)
+      collector$get()
+    },
+    ## generated methods:
 %s
-    ))' -> fmt
+    ))'
 
   args <- lapply(cmds, function(x) as.data.frame(x$arguments))
   dat <- vcapply(names(args), function(x) hiredis_cmd(x, args[[x]]),
                  USE.NAMES=FALSE)
   str <- paste(reindent(dat, 4), collapse=",\n")
   c(header, sprintf(template, str))
+}
+
+generate2 <- function(cmds) {
+  template <- 'redis <- list2env(hash=TRUE, list(\n%s\n))'
+
+  args <- lapply(cmds, function(x) as.data.frame(x$arguments))
+  dat <- vcapply(names(args), function(x) hiredis_cmd(x, args[[x]], TRUE),
+                 USE.NAMES=FALSE)
+  str <- paste(reindent(dat, 2), collapse=",\n")
+  sprintf(template, str)
 }

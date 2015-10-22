@@ -2,12 +2,9 @@
 
 [![Build Status](https://travis-ci.org/ropensci/RedisAPI.png?branch=master)](https://travis-ci.org/ropensci/RedisAPI)
 
-
-
 Automatically generated R6 interface to the full [Redis](http://redis.io) API.  The generated functions are faithful to the Redis [documentation](http://redis.io/commands) while attempting to match R's argument and vectorisation semantics.
 
-The most common use is with the [`RcppRedis`](https://github.com/eddelbuettel/rcppredis) package.  To create a connection:
-
+As of version `0.3.0` RedisAPI supports binary serialisation of almost anything; keys, values, etc.  Just don't expect Redis to do anything sensible with the values - you won't be able to compute on directly.
 
 ```r
 con <- RedisAPI::hiredis()

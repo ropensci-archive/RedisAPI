@@ -4,14 +4,10 @@
 \alias{redis_api}
 \title{Create a Redis API object}
 \usage{
-redis_api(x, host, port, type)
+redis_api(x, type)
 }
 \arguments{
 \item{x}{An object}
-
-\item{host}{String indicating the hostnae}
-
-\item{port}{String indicating the port}
 
 \item{type}{String indicating the type}
 }

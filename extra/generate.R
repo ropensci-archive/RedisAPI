@@ -4,15 +4,13 @@ path_R <- "../R"
 source("generate_fun.R")
 
 if (!file.exists("redis-doc")) {
-  system("git clone https://github.com/antirez/redis-doc")
+  callr::call_system(callr::Sys_which("git"),
+                     c("clone", "https://github.com/antirez/redis-doc"))
 }
 
 cmds <- read_commands()
-dat <- generate(cmds)
-writeLines(dat, file.path(path_R, "redis_generated.R"))
+dat_cl <- generate(cmds)
+dat_other <- generate2(cmds)
+
+writeLines(c(dat_cl, dat_other), file.path(path_R, "redis_generated.R"))
 save(cmds, file=file.path(path_R, "sysdata.rda"))
-
-## TODO: I want to get the help files added by cloning that from
-## redis-cli which already formats things nicely.
-
-## Things with *multiple* optional arguments.  These also take "command"

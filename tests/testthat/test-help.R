@@ -22,7 +22,7 @@ test_that("commands", {
 
   groups <- redis_commands_groups()
   expect_that(groups, is_a("character"))
-  expect_that(length(groups), equals(12L))
+  expect_that(length(groups), equals(14L))
   expect_that(redis_commands(groups),
               is_identical_to(redis_commands()))
   expect_that(sort(redis_commands(c("string", "hash"))),

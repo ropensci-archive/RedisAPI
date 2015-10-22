@@ -5,25 +5,21 @@
 \alias{redis_available}
 \title{Interface to Redis}
 \usage{
-hiredis(host = Sys.getenv("REDIS_HOST", "127.0.0.1"),
-  port = Sys.getenv("REDIS_PORT", 6379))
+hiredis(...)
 
 redis_available(...)
 }
 \arguments{
-\item{host}{Hostname.  Default is to look up the value of the
-environment variable \code{REDIS_HOST} and then to default to the
-value \code{127.0.0.1} (localhost).}
-
-\item{port}{Port to connect on.  Default is to look up the value
-of the environment variable \code{REDIS_PORT} and then to default
-to the value "6379".}
+\item{...}{Named configuration options passed to
+  \code{\link{redis_config}}, used to create the environment
+  (notable keys include \code{host}, \code{port}, and the
+  environment variable \code{REDIS_URL})}
 
 \item{...}{Arguments passed from \code{redis_available} to
 \code{hiredis}}
 }
 \description{
-Create an interface to Redis, via RcppRedis.  The returned object
+Create an interface to Redis, via redux.  The returned object
 includes methods for all Redis commands.
 }
 \examples{

@@ -30,3 +30,17 @@ object_to_bin <- function(obj) {
 bin_to_object <- function(bin) {
   .Call(C_unserializeFromRaw, bin, PACKAGE="RedisAPI")
 }
+
+## Vectorised versions:
+lobject_to_string <- function(obj) {
+  vcapply(obj, object_to_string)
+}
+string_to_lobject <- function(obj) {
+  lapply(str, string_to_object)
+}
+lobject_to_bin <- function(obj) {
+  lapply(obj, object_to_bin)
+}
+bin_to_lobject <- function(bin) {
+  lapply(bin, bin_to_object)
+}

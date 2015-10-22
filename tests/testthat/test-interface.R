@@ -45,7 +45,7 @@ test_that("SORT", {
   key2 <- rand_str()
   on.exit(r$DEL(key2))
   expect_that(r$SORT(key, STORE=key2), equals(length(i)))
-  expect_that(r$TYPE(key2), equals("list"))
+  expect_that(r$TYPE(key2), equals(redis_status("list")))
   expect_that(r$LRANGE(key2, 0, -1), equals(cmp))
 })
 

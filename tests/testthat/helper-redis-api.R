@@ -33,3 +33,8 @@ rand_str <- function(prefix="") {
   paste0(prefix,
          paste(sample(c(LETTERS, letters, 0:9), len), collapse=""))
 }
+
+redis_status <- function(x) {
+  class(x) <- "redis_status"
+  x
+}

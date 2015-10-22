@@ -4,13 +4,13 @@ Version: 0.2.0
 Description: Automatically generated 'R6' interface to the full
   'hiredis' 'API'.  Generated functions are faithful to the 'hiredis'
   documentation while attempting to match R's argument semantics.
-  Serialisation is left up to the user and binary serialisation is not
-  currently supported.
+  Serialisation must be explicitly done by the user, but both binary
+  and text-mode serialisation is supported.
 Depends: R (>= 3.1.2)
 License: BSD_2_clause + file LICENSE
 LazyData: true
 Author: Rich FitzJohn
 Maintainer: Rich FitzJohn <rich.fitzjohn@gmail.com>
-Imports: R6, RcppRedis, RApiSerialize
+Imports: R6, RApiSerialize, redux
 Suggests: testthat, knitr
 VignetteBuilder: knitr

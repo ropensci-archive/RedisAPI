@@ -4,6 +4,9 @@ RSCRIPT = Rscript --no-init-file
 all:
 	${RSCRIPT} -e 'library(methods); devtools::compile_dll()'
 
+generate:
+	(cd extra && ./generate.R)
+
 test:
 	${RSCRIPT} -e 'library(methods); devtools::test()'
 

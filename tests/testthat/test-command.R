@@ -1,4 +1,4 @@
-context("utils")
+context("command")
 
 test_that("command", {
   expect_that(command("foo", NULL, FALSE),

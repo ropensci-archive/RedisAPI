@@ -52,6 +52,6 @@ scan_find <- function(con, pattern, count=NULL) {
       res <<- c(res, keys)
     }
   }
-  RedisAPI::scan_apply(con, find, pattern, count)
+  scan_apply(con, find, pattern, count)
   res
 }

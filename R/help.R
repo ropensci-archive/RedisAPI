@@ -35,7 +35,6 @@ redis_help <- function(command) {
   }
   cat(paste0(dat$summary, "\n"))
   f <- redis_api_generator$public_methods[[toupper(command)]]
-  args <- capture.output(args(f))
-  cat(paste0(paste(args[-length(args)], collapse="\n"), "\n"))
+  cat(paste0("Usage: ", capture_args(f, toupper(command))))
   cat(sprintf("See: http://redis.io/commands/%s\n", tolower(command)))
 }

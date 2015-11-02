@@ -24,11 +24,15 @@ string_to_object <- function(str) {
 ##' @importFrom RApiSerialize serializeToRaw
 C_serializeToRaw <- NULL
 C_unserializeFromRaw <- NULL
+##' @export
+##' @rdname object_to_string
 object_to_bin <- function(obj) {
-  .Call(C_serializeToRaw, obj, PACKAGE="RedisAPI")
+  list(.Call(C_serializeToRaw, obj))
 }
+##' @export
+##' @rdname object_to_string
 bin_to_object <- function(bin) {
-  .Call(C_unserializeFromRaw, bin, PACKAGE="RedisAPI")
+  .Call(C_unserializeFromRaw, bin)
 }
 
 ## Vectorised versions:
@@ -39,7 +43,7 @@ string_to_lobject <- function(obj) {
   lapply(str, string_to_object)
 }
 lobject_to_bin <- function(obj) {
-  lapply(obj, object_to_bin)
+  lapply(obj, function(x) .Call(C_serializeToRaw, x))
 }
 bin_to_lobject <- function(bin) {
   lapply(bin, bin_to_object)

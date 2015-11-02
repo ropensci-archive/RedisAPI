@@ -2,12 +2,13 @@
 
 [![Build Status](https://travis-ci.org/ropensci/RedisAPI.png?branch=master)](https://travis-ci.org/ropensci/RedisAPI)
 
-
-
 Automatically generated R6 interface to the full [Redis](http://redis.io) API.  The generated functions are faithful to the Redis [documentation](http://redis.io/commands) while attempting to match R's argument and vectorisation semantics.
 
 As of version `0.3.0` RedisAPI supports binary serialisation of almost anything; keys, values, etc.  Just don't expect Redis to do anything sensible with the values - you won't be able to compute on directly.
 
+This package is designed to be used with a driver package.  There are two such packages available: [`redux`](https://github.com/richfitz/redux) and [`rrlite`](https://github.com/ropensci/rrlite).  The `RedisAPI` package simply provides the glue to make these packages nice to use, along with a number of additional tools.
+
+The idea here is that things added to _this_ package become automatically available in the driver packages so that a consistent interface to both Redis and rlite is straightforward to generate.
 
 ```r
 con <- RedisAPI::hiredis()
@@ -142,10 +143,6 @@ For a more interesting example, see [`storr`](https://github.com/richfitz/storr)
 # rlite support
 
 If [`rrlite`](https://github.com/ropensci/rrlite) is installed, you can create hirlite connections with `rrlite::hirlite()` which has the same set of generated interfaces.  Not all commands are supported (for example, `SCAN` and `BLPOP`) but `hirlite` will throw an error if unsupported commands are used.
-
-# Documentation
-
-There is a vignette (`vignette("RedisAPI")`) that outlines the basic idea.  Source is [here](vignette/RedisAPI.Rmd), and rendered [here](http://htmlpreview.github.io/?https://raw.githubusercontent.com/ropensci/RedisAPI/master/inst/doc/RedisAPI.html)
 
 ## Meta
 

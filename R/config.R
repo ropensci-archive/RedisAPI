@@ -125,6 +125,11 @@ print.redis_status <- function(x, ...) {
   cat(sprintf('[Redis: %s]\n', x))
 }
 
+##' Parse a Redis URL
+##' @title Parse Redis URL
+##' @param url A URL to parse
+##' @export
+##'
 parse_redis_url <- function(url) {
   clean <- function(x, integer=FALSE) {
     if (x == "") {

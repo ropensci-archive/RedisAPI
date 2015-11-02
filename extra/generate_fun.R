@@ -212,12 +212,13 @@ generate <- function(cmds) {
       ret
     },
 
-    ## TODO: Pattern is not supported here yet.
     subscribe=function(channel, transform=NULL, terminate=NULL,
-                       envir=parent.frame(), collect=TRUE, n=Inf) {
+                       collect=TRUE, n=Inf, pattern=FALSE,
+                       envir=parent.frame()) {
+      assert_scalar_logical(pattern)
       collector <- make_collector(collect)
       callback <- make_callback(transform, terminate, collector$add, n)
-      self$.subscribe(channel, callback, envir)
+      self$.subscribe(channel, pattern, callback, envir)
       collector$get()
     },
     ## generated methods:

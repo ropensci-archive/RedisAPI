@@ -14,25 +14,3 @@ test_that("Round trip a data.frame disassembly (cells)", {
                         obj2$classes)
   expect_that(cmp2, equals(x2, tolerance=1e-14))
 })
-
-test_that("Round trip (via Redis)", {
-  skip_if_no_redis()
-  db <- hiredis()
-
-  redis_object_set("key1", mtcars, db)
-  expect_that(redis_object_get("key1", db), equals(mtcars))
-  expect_that(redis_object_exists("key1", db), is_true())
-  expect_that(redis_object_type("key1", db), equals("data.frame"))
-
-  expect_that(redis_object_del("key1", db), is_true())
-  expect_that(redis_object_del("key1", db), is_false())
-  expect_that(redis_object_exists("key1", db), is_false())
-  expect_that(redis_object_type("key1", db), is_null())
-
-  x2 <- mixed_fake_data(100)
-  redis_object_set("key2", x2, db)
-  expect_that(redis_object_get("key2", db), equals(x2))
-
-  expect_that(redis_object_del("key2", db), is_true())
-  expect_that(redis_object_del("key2", db), is_false())
-})

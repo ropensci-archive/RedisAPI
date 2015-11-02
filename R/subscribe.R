@@ -1,11 +1,3 @@
-subscribe_callback <- function(transform, terminate, envir,
-                               collec=TRUE, n=Inf) {
-  collector <- make_collector(collect)
-  callback <- make_callback(transform, terminate, collector$add, n)
-  redis_subscribe(ptr, channel, callback, envir)
-  collector$get()
-}
-
 make_collector <- function(collect=TRUE) {
   if (collect) {
     vals <- list()

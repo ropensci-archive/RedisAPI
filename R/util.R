@@ -127,3 +127,28 @@ stop_unknown <- function(name, defn, known, error=TRUE) {
     }
   }
 }
+
+## Different treatment of length for raw vectors.
+length2 <- function(x) {
+  if (is.raw(x)) 1L else length(x)
+}
+assert_scalar2 <- function(x, name=deparse(substitute(x))) {
+  if (length2(x) != 1L) {
+    stop(sprintf("%s must be a scalar", name), call.=FALSE)
+  }
+}
+assert_scalar_or_null2 <- function(x, name=deparse(substitute(x))) {
+  if (!is.null(x)) {
+    assert_scalar2(x, name)
+  }
+}
+assert_length_or_null2 <- function(x, n, name=deparse(substitute(x))) {
+  if (!is.null(x)) {
+    assert_length2(x, n, name)
+  }
+}
+assert_length2 <- function(x, n, name=deparse(substitute(x))) {
+  if (length2(x) != n) {
+    stop(sprintf("%s must be length %d", name, n), call.=FALSE)
+  }
+}

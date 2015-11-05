@@ -108,7 +108,7 @@ hiredis_cmd <- function(name, args, standalone=FALSE) {
 
   ## Generate the check string
   ## TODO: Consider dealing with integer types here?
-  check <- sprintf("assert_scalar%s(%s)",
+  check <- sprintf("assert_scalar%s2(%s)",
                    ifelse(is_optional, "_or_null", ""),
                    args$name)
   ## Then, for things that take multiple arguments:
@@ -133,12 +133,9 @@ hiredis_cmd <- function(name, args, standalone=FALSE) {
   check <- check[!is_multiple]
 
   is_paired <- args$paired != ""
-  paired <- sprintf("assert_length(%s, length(%s))",
-                    args$name, args$paired)[is_paired]
-
-  ## Here we can't use c() to pull args together but have to use rbind
-  ## for the paired ones.  This bit of hackery depends crucially on
-  ## the single pair rule.
+  ## Here we can't use c() to pull args together but have to
+  ## interleave for the paired ones.  This bit of hackery depends
+  ## crucially on the single pair rule.
   if (any(is_paired & is_multiple)) {
     pair <- sprintf("%s <- interleave(%s, %s)",
                     pair_from, pair_from, pair_to)
@@ -197,7 +194,7 @@ generate <- function(cmds) {
     .subscribe=NULL,
 
     initialize=function(obj) {
-      self$config     <- obj$config()
+      self$config     <- hiredis_function(obj$config)
       self$reconnect  <- hiredis_function(obj$reconnect)
       self$.command   <- hiredis_function(obj$command, TRUE)
       self$.pipeline  <- hiredis_function(obj$pipeline)

@@ -27,10 +27,11 @@ C_unserializeFromRaw <- NULL
 ##' @export
 ##' @rdname object_to_string
 object_to_bin <- function(obj) {
-  list(.Call(C_serializeToRaw, obj))
+  .Call(C_serializeToRaw, obj)
 }
 ##' @export
 ##' @rdname object_to_string
+##' @param bin A binary vector to convert back to an R object
 bin_to_object <- function(bin) {
   .Call(C_unserializeFromRaw, bin)
 }

@@ -24,12 +24,7 @@ test_that("string serialisation is transitive", {
 
 test_that("binrary serialisation is transitive", {
   f <- function(x, identical=TRUE) {
-    ## NOTE: not quiet transitive, but this seems like the least-bad
-    ## solution to avoid a sapply like situation where we have to
-    ## constantly guess how inputs and outputs should look.  This
-    ## might change, but if it does should be done sooner rather than
-    ## later.
-    y <- bin_to_object(object_to_bin(x)[[1]])
+    y <- bin_to_object(object_to_bin(x))
     is_equivalent_to <- if (identical) is_identical_to else equals
     expect_that(x, is_equivalent_to(y))
   }

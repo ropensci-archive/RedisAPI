@@ -19,6 +19,8 @@ bin_to_object(bin)
 \item{obj}{An R object to convert into a string}
 
 \item{str}{A string to convert into an R object}
+
+\item{bin}{A binary vector to convert back to an R object}
 }
 \description{
 Serialise/deserialise an R object into a string.  This is a very

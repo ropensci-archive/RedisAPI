@@ -17,6 +17,13 @@ test_that("interleave", {
   expect_that(interleave(c("a", "b"), obj),
               equals(list("a", obj[[1]], "b", obj[[2]])))
 
+  expect_that(interleave("a", obj[[1]]),
+              equals(list("a", obj[[1]])))
+  expect_that(interleave(obj[[1]], obj[[2]]),
+              equals(obj))
+  expect_that(interleave(obj[[1]], "b"),
+              equals(list(obj[[1]], "b")))
+
   ## Corner cases:
   expect_that(interleave(c(), c()), equals(character(0)))
   expect_that(interleave(list(), list()), equals(list()))
@@ -31,4 +38,13 @@ test_that("interleave", {
   expect_that(interleave("a", c()), throws_error("b must be length 1"))
   expect_that(interleave(c(), "b"), throws_error("b must be length 0"))
   expect_that(interleave("a", sin), throws_error("cannot coerce type"))
+  expect_that(interleave(c("a", "b"), "c"),
+              throws_error("b must be length 2"))
+
+  ## Raw is stored more like character so that length(raw) is more
+  ## like nchar(string).
+  expect_that(interleave(runif(length(obj[[1]])), obj[[1]]),
+              throws_error("b must be length"))
+  expect_that(interleave(obj[[1]], runif(length(obj[[1]]))),
+              throws_error("b must be length"))
 })

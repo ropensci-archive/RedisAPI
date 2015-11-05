@@ -1,11 +1,13 @@
 ## Utilities for dealing with Redis:
 interleave <- function(a, b) {
-  assert_length(b, length(a))
+  assert_length2(b, length2(a))
   convert <- function(x) {
     if (is.logical(x)) {
       as.character(as.integer(x))
     } else if (is.list(x)) {
       x
+    } else if (is.raw(x)) {
+      list(x)
     } else {
       as.character(x)
     }

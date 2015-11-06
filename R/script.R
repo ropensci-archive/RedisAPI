@@ -17,7 +17,7 @@ redis_scripts <- function(con, ..., scripts=list(...)) {
   assert_named(scripts)
   sha <- setNames(character(length(scripts)), names(scripts))
   for (i in names(scripts)) {
-    sha[[i]] <- con$run(c("SCRIPT", "LOAD", scripts[[i]]))
+    sha[[i]] <- con$SCRIPT_LOAD(scripts[[i]])
   }
   function(name, keys=character(0), vals=character(0)) {
     con$EVALSHA(sha[[name]], length(keys), keys, vals)

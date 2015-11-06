@@ -4,6 +4,7 @@
 
 ```{r, echo=FALSE}
 set.seed(1)
+knitr::opts_chunk$set(error=FALSE)
 ```
 
 Automatically generated R6 interface to the full [Redis](http://redis.io) API.  The generated functions are faithful to the Redis [documentation](http://redis.io/commands) while attempting to match R's argument and vectorisation semantics.
@@ -11,7 +12,7 @@ Automatically generated R6 interface to the full [Redis](http://redis.io) API.  
 As of version `0.3.0` RedisAPI supports binary serialisation of almost anything; keys, values, etc.  Just don't expect Redis to do anything sensible with the values - you won't be able to compute on directly.
 
 ```{r}
-con <- RedisAPI::hiredis()
+con <- redux::hiredis()
 ```
 
 That connection has many (`r length(grep("^[A-Z]", ls(con)))`) methods. Automatically generated methods are in all-caps, following the Redis documentation.  Unlike Redis they are *case sensitive*.
@@ -29,7 +30,7 @@ con
 ##     ZUNIONSTORE: function
 ```
 
-149 methods are available in the resulting class; these are designed to be straightforward to use following the Redis documentation.  For example, the Redis [`HMSET`](http://redis.io/commands/hmset) command is defined as
+The methods are designed to be straightforward to use following the Redis documentation.  For example, the Redis [`HMSET`](http://redis.io/commands/hmset) command is defined as
 
 ```
 HMSET key field value [field value ...]
@@ -51,6 +52,8 @@ con$HGET("myhash", "b")
 ```
 
 Note that no clever type conversion will be done; R types are converted to strings and are not converted back when returned.
+
+There are some sub-command-style Redis commands with spaces in them (e.g., `CLIENT KILL`, `SCRIPT LOAD`; these are implemented by replacing spaces with underscores to give `CLIENT_KILL` and `SCRIPT_LOAD`.
 
 # Serialisation
 
@@ -75,7 +78,7 @@ String serialisation can very slightly mess with floating point numbers, but sho
 As a simple example of what could be built on `RedisAPI` there is an example `rdb` class that does very basic key/value storage of R objects:
 
 ```{r}
-r <- RedisAPI::rdb(RedisAPI::hiredis())
+r <- RedisAPI::rdb(redux::hiredis())
 r$set("foo", runif(20))
 r$get("foo")
 r$keys()

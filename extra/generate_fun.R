@@ -47,8 +47,11 @@ is_field <- function(name, args) {
   }
 }
 
-hiredis_cmd <- function(name, args, standalone=FALSE) {
+hiredis_cmd <- function(x, standalone=FALSE) {
+  name <- x$name
+  args <- as.data.frame(x$arguments)
   is_multiple <- is_field("multiple", args)
+
   is_command <- is_field("command", args)
   is_paired <- viapply(args$name, length) > 1L
 
@@ -95,7 +98,8 @@ hiredis_cmd <- function(name, args, standalone=FALSE) {
   if (any(duplicated(args$name))) {
     stop("duplicate names")
   }
-  args$name <- gsub("-", "_", args$name, fixed=TRUE)
+  ## The colon here is for CLIENT KILL
+  args$name <- gsub("[-:]", "_", args$name)
   if (any(grepl("[^A-Za-z0-9._]", args$name))) {
     stop("invalid names")
   }
@@ -152,24 +156,22 @@ hiredis_cmd <- function(name, args, standalone=FALSE) {
                                 args$command_length[is_command] > 1L)
   }
 
-  args <- paste(c(dquote(name), vars), collapse=", ")
+  args <- paste(c(dquote(strsplit(name, " ", name, fixed=TRUE)[[1]]), vars),
+                collapse=", ")
   run <- sprintf("list(%s)", args)
   if (!standalone) {
     run <- sprintf("self$.command(%s)", run)
   }
   fn_body <- paste(indent(c(check, pair, run)), collapse="\n")
   fmt <- "%s=function(%s) {\n%s\n}"
-  sprintf(fmt, toupper(name), r_fn_args, fn_body)
+  sprintf(fmt, clean_name(name), r_fn_args, fn_body)
 }
 
 read_commands <- function() {
   cmds <- jsonlite::fromJSON("redis-doc/commands.json")
-
-  ## For now, nothing supported that is in two bits:
-  cmds <- cmds[!grepl(" ", names(cmds))]
-
-  ##   cmds_ok <- jsonlite::fromJSON("supported.json")
-  ##   cmds <- cmds[sort(cmds_ok)]
+  for (i in seq_along(cmds)) {
+    cmds[[i]]$name <- names(cmds)[[i]]
+  }
 
   ## Now, go through and get the extra doc:
   ## for (i in names(cmds)) {
@@ -222,19 +224,18 @@ generate <- function(cmds) {
 %s
     ))'
 
-  args <- lapply(cmds, function(x) as.data.frame(x$arguments))
-  dat <- vcapply(names(args), function(x) hiredis_cmd(x, args[[x]]),
-                 USE.NAMES=FALSE)
+  dat <- vcapply(cmds, hiredis_cmd, USE.NAMES=FALSE)
   str <- paste(reindent(dat, 4), collapse=",\n")
   c(header, sprintf(template, str))
 }
 
 generate2 <- function(cmds) {
   template <- 'redis <- list2env(hash=TRUE, list(\n%s\n))'
-
-  args <- lapply(cmds, function(x) as.data.frame(x$arguments))
-  dat <- vcapply(names(args), function(x) hiredis_cmd(x, args[[x]], TRUE),
-                 USE.NAMES=FALSE)
+  dat <- vcapply(cmds, hiredis_cmd, TRUE, USE.NAMES=FALSE)
   str <- paste(reindent(dat, 2), collapse=",\n")
   sprintf(template, str)
+}
+
+clean_name <- function(x) {
+  toupper(gsub("[ -]", "_", x))
 }

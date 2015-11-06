@@ -2,19 +2,18 @@
 
 [![Build Status](https://travis-ci.org/ropensci/RedisAPI.png?branch=master)](https://travis-ci.org/ropensci/RedisAPI)
 
+
+
 Automatically generated R6 interface to the full [Redis](http://redis.io) API.  The generated functions are faithful to the Redis [documentation](http://redis.io/commands) while attempting to match R's argument and vectorisation semantics.
 
 As of version `0.3.0` RedisAPI supports binary serialisation of almost anything; keys, values, etc.  Just don't expect Redis to do anything sensible with the values - you won't be able to compute on directly.
 
-This package is designed to be used with a driver package.  There are two such packages available: [`redux`](https://github.com/richfitz/redux) and [`rrlite`](https://github.com/ropensci/rrlite).  The `RedisAPI` package simply provides the glue to make these packages nice to use, along with a number of additional tools.
-
-The idea here is that things added to _this_ package become automatically available in the driver packages so that a consistent interface to both Redis and rlite is straightforward to generate.
 
 ```r
-con <- RedisAPI::hiredis()
+con <- redux::hiredis()
 ```
 
-That connection has many (158) methods. Automatically generated methods are in all-caps, following the Redis documentation.  Unlike Redis they are *case sensitive*.
+That connection has many (194) methods. Automatically generated methods are in all-caps, following the Redis documentation.  Unlike Redis they are *case sensitive*.
 
 ```r
 con
@@ -29,7 +28,7 @@ con
 ##     ZUNIONSTORE: function
 ```
 
-149 methods are available in the resulting class; these are designed to be straightforward to use following the Redis documentation.  For example, the Redis [`HMSET`](http://redis.io/commands/hmset) command is defined as
+The methods are designed to be straightforward to use following the Redis documentation.  For example, the Redis [`HMSET`](http://redis.io/commands/hmset) command is defined as
 
 ```
 HMSET key field value [field value ...]
@@ -63,6 +62,8 @@ con$HGET("myhash", "b")
 ```
 
 Note that no clever type conversion will be done; R types are converted to strings and are not converted back when returned.
+
+There are some sub-command-style Redis commands with spaces in them (e.g., `CLIENT KILL`, `SCRIPT LOAD`; these are implemented by replacing spaces with underscores to give `CLIENT_KILL` and `SCRIPT_LOAD`.
 
 # Serialisation
 
@@ -118,7 +119,7 @@ As a simple example of what could be built on `RedisAPI` there is an example `rd
 
 
 ```r
-r <- RedisAPI::rdb(RedisAPI::hiredis())
+r <- RedisAPI::rdb(redux::hiredis())
 r$set("foo", runif(20))
 r$get("foo")
 ```
@@ -135,7 +136,7 @@ r$keys()
 ```
 
 ```
-## [1] "foo"
+## [1] "foo"        "mykey"      "a_function" "mtcars"
 ```
 
 For a more interesting example, see [`storr`](https://github.com/richfitz/storr)
@@ -143,6 +144,10 @@ For a more interesting example, see [`storr`](https://github.com/richfitz/storr)
 # rlite support
 
 If [`rrlite`](https://github.com/ropensci/rrlite) is installed, you can create hirlite connections with `rrlite::hirlite()` which has the same set of generated interfaces.  Not all commands are supported (for example, `SCAN` and `BLPOP`) but `hirlite` will throw an error if unsupported commands are used.
+
+# Documentation
+
+There is a vignette (`vignette("RedisAPI")`) that outlines the basic idea.  Source is [here](vignette/RedisAPI.Rmd), and rendered [here](http://htmlpreview.github.io/?https://raw.githubusercontent.com/ropensci/RedisAPI/master/inst/doc/RedisAPI.html)
 
 ## Meta
 

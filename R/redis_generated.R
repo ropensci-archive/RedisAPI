@@ -82,11 +82,134 @@ redis_api_generator <- R6::R6Class(
       assert_scalar2(timeout)
       self$.command(list("BRPOPLPUSH", source, destination, timeout))
     },
+    CLIENT_KILL=function(ip_port=NULL, ID=NULL, TYPE=NULL, ADDR=NULL, SKIPME=NULL) {
+      assert_scalar_or_null2(ip_port)
+      assert_scalar_or_null2(ID)
+      assert_match_value_or_null(TYPE, c("normal", "slave", "pubsub"))
+      assert_scalar_or_null2(ADDR)
+      assert_scalar_or_null2(SKIPME)
+      self$.command(list("CLIENT", "KILL", ip_port, command("ID", ID, FALSE), command("TYPE", TYPE, FALSE), command("ADDR", ADDR, FALSE), command("SKIPME", SKIPME, FALSE)))
+    },
+    CLIENT_LIST=function() {
+      self$.command(list("CLIENT", "LIST"))
+    },
+    CLIENT_GETNAME=function() {
+      self$.command(list("CLIENT", "GETNAME"))
+    },
+    CLIENT_PAUSE=function(timeout) {
+      assert_scalar2(timeout)
+      self$.command(list("CLIENT", "PAUSE", timeout))
+    },
+    CLIENT_SETNAME=function(connection_name) {
+      assert_scalar2(connection_name)
+      self$.command(list("CLIENT", "SETNAME", connection_name))
+    },
+    CLUSTER_ADDSLOTS=function(slot) {
+      self$.command(list("CLUSTER", "ADDSLOTS", slot))
+    },
+    CLUSTER_COUNT_FAILURE_REPORTS=function(node_id) {
+      assert_scalar2(node_id)
+      self$.command(list("CLUSTER", "COUNT-FAILURE-REPORTS", node_id))
+    },
+    CLUSTER_COUNTKEYSINSLOT=function(slot) {
+      assert_scalar2(slot)
+      self$.command(list("CLUSTER", "COUNTKEYSINSLOT", slot))
+    },
+    CLUSTER_DELSLOTS=function(slot) {
+      self$.command(list("CLUSTER", "DELSLOTS", slot))
+    },
+    CLUSTER_FAILOVER=function(options=NULL) {
+      assert_match_value_or_null(options, c("FORCE", "TAKEOVER"))
+      self$.command(list("CLUSTER", "FAILOVER", options))
+    },
+    CLUSTER_FORGET=function(node_id) {
+      assert_scalar2(node_id)
+      self$.command(list("CLUSTER", "FORGET", node_id))
+    },
+    CLUSTER_GETKEYSINSLOT=function(slot, count) {
+      assert_scalar2(slot)
+      assert_scalar2(count)
+      self$.command(list("CLUSTER", "GETKEYSINSLOT", slot, count))
+    },
+    CLUSTER_INFO=function() {
+      self$.command(list("CLUSTER", "INFO"))
+    },
+    CLUSTER_KEYSLOT=function(key) {
+      assert_scalar2(key)
+      self$.command(list("CLUSTER", "KEYSLOT", key))
+    },
+    CLUSTER_MEET=function(ip, port) {
+      assert_scalar2(ip)
+      assert_scalar2(port)
+      self$.command(list("CLUSTER", "MEET", ip, port))
+    },
+    CLUSTER_NODES=function() {
+      self$.command(list("CLUSTER", "NODES"))
+    },
+    CLUSTER_REPLICATE=function(node_id) {
+      assert_scalar2(node_id)
+      self$.command(list("CLUSTER", "REPLICATE", node_id))
+    },
+    CLUSTER_RESET=function(reset_type=NULL) {
+      assert_match_value_or_null(reset_type, c("HARD", "SOFT"))
+      self$.command(list("CLUSTER", "RESET", reset_type))
+    },
+    CLUSTER_SAVECONFIG=function() {
+      self$.command(list("CLUSTER", "SAVECONFIG"))
+    },
+    CLUSTER_SET_CONFIG_EPOCH=function(config_epoch) {
+      assert_scalar2(config_epoch)
+      self$.command(list("CLUSTER", "SET-CONFIG-EPOCH", config_epoch))
+    },
+    CLUSTER_SETSLOT=function(slot, subcommand, node_id=NULL) {
+      assert_scalar2(slot)
+      assert_match_value(subcommand, c("IMPORTING", "MIGRATING", "STABLE", "NODE"))
+      assert_scalar_or_null2(node_id)
+      self$.command(list("CLUSTER", "SETSLOT", slot, subcommand, node_id))
+    },
+    CLUSTER_SLAVES=function(node_id) {
+      assert_scalar2(node_id)
+      self$.command(list("CLUSTER", "SLAVES", node_id))
+    },
+    CLUSTER_SLOTS=function() {
+      self$.command(list("CLUSTER", "SLOTS"))
+    },
     COMMAND=function() {
       self$.command(list("COMMAND"))
     },
+    COMMAND_COUNT=function() {
+      self$.command(list("COMMAND", "COUNT"))
+    },
+    COMMAND_GETKEYS=function() {
+      self$.command(list("COMMAND", "GETKEYS"))
+    },
+    COMMAND_INFO=function(command_name) {
+      self$.command(list("COMMAND", "INFO", command_name))
+    },
+    CONFIG_GET=function(parameter) {
+      assert_scalar2(parameter)
+      self$.command(list("CONFIG", "GET", parameter))
+    },
+    CONFIG_REWRITE=function() {
+      self$.command(list("CONFIG", "REWRITE"))
+    },
+    CONFIG_SET=function(parameter, value) {
+      assert_scalar2(parameter)
+      assert_scalar2(value)
+      self$.command(list("CONFIG", "SET", parameter, value))
+    },
+    CONFIG_RESETSTAT=function() {
+      self$.command(list("CONFIG", "RESETSTAT"))
+    },
     DBSIZE=function() {
       self$.command(list("DBSIZE"))
+    },
+    DEBUG_OBJECT=function(key) {
+      assert_scalar2(key)
+      self$.command(list("DEBUG", "OBJECT", key))
+    },
+    DEBUG_SEGFAULT=function() {
+      self$.command(list("DEBUG", "SEGFAULT"))
     },
     DECR=function(key) {
       assert_scalar2(key)
@@ -503,6 +626,19 @@ redis_api_generator <- R6::R6Class(
       assert_scalar2(key)
       self$.command(list("SCARD", key))
     },
+    SCRIPT_EXISTS=function(script) {
+      self$.command(list("SCRIPT", "EXISTS", script))
+    },
+    SCRIPT_FLUSH=function() {
+      self$.command(list("SCRIPT", "FLUSH"))
+    },
+    SCRIPT_KILL=function() {
+      self$.command(list("SCRIPT", "KILL"))
+    },
+    SCRIPT_LOAD=function(script) {
+      assert_scalar2(script)
+      self$.command(list("SCRIPT", "LOAD", script))
+    },
     SDIFF=function(key) {
       self$.command(list("SDIFF", key))
     },
@@ -848,11 +984,134 @@ redis <- list2env(hash=TRUE, list(
     assert_scalar2(timeout)
     list("BRPOPLPUSH", source, destination, timeout)
   },
+  CLIENT_KILL=function(ip_port=NULL, ID=NULL, TYPE=NULL, ADDR=NULL, SKIPME=NULL) {
+    assert_scalar_or_null2(ip_port)
+    assert_scalar_or_null2(ID)
+    assert_match_value_or_null(TYPE, c("normal", "slave", "pubsub"))
+    assert_scalar_or_null2(ADDR)
+    assert_scalar_or_null2(SKIPME)
+    list("CLIENT", "KILL", ip_port, command("ID", ID, FALSE), command("TYPE", TYPE, FALSE), command("ADDR", ADDR, FALSE), command("SKIPME", SKIPME, FALSE))
+  },
+  CLIENT_LIST=function() {
+    list("CLIENT", "LIST")
+  },
+  CLIENT_GETNAME=function() {
+    list("CLIENT", "GETNAME")
+  },
+  CLIENT_PAUSE=function(timeout) {
+    assert_scalar2(timeout)
+    list("CLIENT", "PAUSE", timeout)
+  },
+  CLIENT_SETNAME=function(connection_name) {
+    assert_scalar2(connection_name)
+    list("CLIENT", "SETNAME", connection_name)
+  },
+  CLUSTER_ADDSLOTS=function(slot) {
+    list("CLUSTER", "ADDSLOTS", slot)
+  },
+  CLUSTER_COUNT_FAILURE_REPORTS=function(node_id) {
+    assert_scalar2(node_id)
+    list("CLUSTER", "COUNT-FAILURE-REPORTS", node_id)
+  },
+  CLUSTER_COUNTKEYSINSLOT=function(slot) {
+    assert_scalar2(slot)
+    list("CLUSTER", "COUNTKEYSINSLOT", slot)
+  },
+  CLUSTER_DELSLOTS=function(slot) {
+    list("CLUSTER", "DELSLOTS", slot)
+  },
+  CLUSTER_FAILOVER=function(options=NULL) {
+    assert_match_value_or_null(options, c("FORCE", "TAKEOVER"))
+    list("CLUSTER", "FAILOVER", options)
+  },
+  CLUSTER_FORGET=function(node_id) {
+    assert_scalar2(node_id)
+    list("CLUSTER", "FORGET", node_id)
+  },
+  CLUSTER_GETKEYSINSLOT=function(slot, count) {
+    assert_scalar2(slot)
+    assert_scalar2(count)
+    list("CLUSTER", "GETKEYSINSLOT", slot, count)
+  },
+  CLUSTER_INFO=function() {
+    list("CLUSTER", "INFO")
+  },
+  CLUSTER_KEYSLOT=function(key) {
+    assert_scalar2(key)
+    list("CLUSTER", "KEYSLOT", key)
+  },
+  CLUSTER_MEET=function(ip, port) {
+    assert_scalar2(ip)
+    assert_scalar2(port)
+    list("CLUSTER", "MEET", ip, port)
+  },
+  CLUSTER_NODES=function() {
+    list("CLUSTER", "NODES")
+  },
+  CLUSTER_REPLICATE=function(node_id) {
+    assert_scalar2(node_id)
+    list("CLUSTER", "REPLICATE", node_id)
+  },
+  CLUSTER_RESET=function(reset_type=NULL) {
+    assert_match_value_or_null(reset_type, c("HARD", "SOFT"))
+    list("CLUSTER", "RESET", reset_type)
+  },
+  CLUSTER_SAVECONFIG=function() {
+    list("CLUSTER", "SAVECONFIG")
+  },
+  CLUSTER_SET_CONFIG_EPOCH=function(config_epoch) {
+    assert_scalar2(config_epoch)
+    list("CLUSTER", "SET-CONFIG-EPOCH", config_epoch)
+  },
+  CLUSTER_SETSLOT=function(slot, subcommand, node_id=NULL) {
+    assert_scalar2(slot)
+    assert_match_value(subcommand, c("IMPORTING", "MIGRATING", "STABLE", "NODE"))
+    assert_scalar_or_null2(node_id)
+    list("CLUSTER", "SETSLOT", slot, subcommand, node_id)
+  },
+  CLUSTER_SLAVES=function(node_id) {
+    assert_scalar2(node_id)
+    list("CLUSTER", "SLAVES", node_id)
+  },
+  CLUSTER_SLOTS=function() {
+    list("CLUSTER", "SLOTS")
+  },
   COMMAND=function() {
     list("COMMAND")
   },
+  COMMAND_COUNT=function() {
+    list("COMMAND", "COUNT")
+  },
+  COMMAND_GETKEYS=function() {
+    list("COMMAND", "GETKEYS")
+  },
+  COMMAND_INFO=function(command_name) {
+    list("COMMAND", "INFO", command_name)
+  },
+  CONFIG_GET=function(parameter) {
+    assert_scalar2(parameter)
+    list("CONFIG", "GET", parameter)
+  },
+  CONFIG_REWRITE=function() {
+    list("CONFIG", "REWRITE")
+  },
+  CONFIG_SET=function(parameter, value) {
+    assert_scalar2(parameter)
+    assert_scalar2(value)
+    list("CONFIG", "SET", parameter, value)
+  },
+  CONFIG_RESETSTAT=function() {
+    list("CONFIG", "RESETSTAT")
+  },
   DBSIZE=function() {
     list("DBSIZE")
+  },
+  DEBUG_OBJECT=function(key) {
+    assert_scalar2(key)
+    list("DEBUG", "OBJECT", key)
+  },
+  DEBUG_SEGFAULT=function() {
+    list("DEBUG", "SEGFAULT")
   },
   DECR=function(key) {
     assert_scalar2(key)
@@ -1268,6 +1527,19 @@ redis <- list2env(hash=TRUE, list(
   SCARD=function(key) {
     assert_scalar2(key)
     list("SCARD", key)
+  },
+  SCRIPT_EXISTS=function(script) {
+    list("SCRIPT", "EXISTS", script)
+  },
+  SCRIPT_FLUSH=function() {
+    list("SCRIPT", "FLUSH")
+  },
+  SCRIPT_KILL=function() {
+    list("SCRIPT", "KILL")
+  },
+  SCRIPT_LOAD=function(script) {
+    assert_scalar2(script)
+    list("SCRIPT", "LOAD", script)
   },
   SDIFF=function(key) {
     list("SDIFF", key)

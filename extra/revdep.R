@@ -8,6 +8,7 @@ dir.create(path)
 devtools::install(".")
 
 packages <- c("ropensci/rrlite",
+              "richfitz/redux",
               "richfitz/storr",
               "richfitz/RedisHeartbeat",
               "traitecoevo/rrqueue")
@@ -17,7 +18,7 @@ packages <- c("ropensci/rrlite",
 packages <- setdiff(packages, "traitecoevo/rrqueue")
 
 if (Sys.getenv("USER") == "rich") {
-  prefix <- "/Users/rich/Documents/src"
+  prefix <- "~/Documents/src"
   packages <- basename(packages)
 } else {
   prefix <- "https://github.com"

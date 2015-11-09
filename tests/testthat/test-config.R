@@ -92,3 +92,28 @@ test_that("redis_config", {
   expect_that(redis_config(config=cfg), equals(cfg))
   expect_that(redis_config(host="foo", config=cfg), equals(cfg))
 })
+
+test_that("list argument", {
+  cfg <- list(host="foo", port=8888)
+  config <- redis_config(cfg)
+  expect_that(config$host, equals("foo"))
+  expect_that(config$port, equals(8888))
+
+  expect_that(redis_config(cfg, db=1), throws_error("Invalid configuration"))
+  expect_that(redis_config(db=1, cfg), throws_error("must be named"))
+  expect_that(redis_config(db=1, other=cfg), throws_error("must be scalar"))
+
+  expect_that(cfg2 <- redis_config(db=1, config=cfg),
+              gives_warning("Ignoring dots"))
+  expect_that(cfg2$db, is_null())
+})
+
+test_that("unknowns", {
+  expect_that(cfg <- redis_config(foo=1),
+              gives_warning("Unknown fields in defaults"))
+  expect_that(cfg$foo, is_null())
+})
+
+test_that("non-named args", {
+  expect_that(redis_config("foo"), throws_error("must be named"))
+})

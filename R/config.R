@@ -60,6 +60,9 @@
 ##' @param config A list of options, to use in place of \code{...}
 ##' @export
 redis_config <- function(..., config=list(...)) {
+  ## TODO: consider allowing case where where:
+  ##   1 arg and is unnamed character (assume host)
+  ##   2 arg and char/int, unnamed (assume host/port?)
   defaults <- list(
                 url = Sys_getenv("REDIS_URL", NULL),
                 scheme = "redis",
@@ -68,11 +71,35 @@ redis_config <- function(..., config=list(...)) {
                 path = NULL,
                 password = NULL,
                 db = NULL)
+  dots <- list(...)
+  if (length(dots) > 0L && !identical(dots, config)) {
+    warning("Ignoring dots in favour of config")
+  }
+
   if (inherits(config, "redis_config")) {
     return(config)
   } else if (length(config) == 1 && inherits(config[[1]], "redis_config")) {
-    config[[1]]
+    ## TODO: test
+    return(config[[1]])
+  } else if (length(config) > 0L && is.list(config[[1L]])) {
+    if (length(config) != 1L) {
+      stop("Invalid configuration")
+    }
+    config <- config[[1]]
   }
+
+  if (length(config) > 0L &&
+      (is.null(names(config)) || any(names(config) == ""))) {
+    stop("All config elements must be named")
+  }
+  len <- viapply(config, length)
+  is_null <- vlapply(config, is.null)
+  err <- !is_null & len != 1L
+  if (any(err)) {
+    stop(sprintf("All config elements must be scalar (err on %s)",
+                 paste(names(err), collapse=", ")))
+  }
+
   ## TODO: assert knowns, assert named, test this.
   ## Not sure about this; should it be a warning perhaps?
   config$scheme <- NULL
@@ -94,7 +121,7 @@ redis_config <- function(..., config=list(...)) {
     url <- drop_null(parse_redis_url(config$url))
     defaults <- modify_list(defaults, url)
   }
-  ret <- modify_list(defaults, drop_null(config))
+  ret <- modify_list(defaults, drop_null(config))[names(defaults)]
 
   if (given("path")) {
     ret["host"] <- ret["port"] <- list(NULL)

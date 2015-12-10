@@ -189,6 +189,7 @@ generate <- function(cmds) {
   "redis_api",
   public=list(
     config=NULL,
+    type=NULL,
     reconnect=NULL,
     ## Driver functions
     .command=NULL,
@@ -201,6 +202,7 @@ generate <- function(cmds) {
       self$.command   <- hiredis_function(obj$command, TRUE)
       self$.pipeline  <- hiredis_function(obj$pipeline)
       self$.subscribe <- hiredis_function(obj$subscribe)
+      self$type       <- function() attr(obj, "type", exact=TRUE)
     },
 
     pipeline=function(..., .commands=list(...)) {

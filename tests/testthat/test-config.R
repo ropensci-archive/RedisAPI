@@ -90,7 +90,9 @@ test_that("redis_config", {
   expect_that(cfg, is_a("redis_config"))
   expect_that(redis_config(cfg), equals(cfg))
   expect_that(redis_config(config=cfg), equals(cfg))
-  expect_that(redis_config(host="foo", config=cfg), equals(cfg))
+  expect_warning(cfg2 <- redis_config(host="foo", config=cfg),
+                 "Ignoring dots in favour of config")
+  expect_that(cfg2, equals(cfg))
 })
 
 test_that("list argument", {

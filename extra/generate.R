@@ -12,5 +12,5 @@ cmds <- read_commands()
 dat_cl <- generate(cmds)
 dat_other <- generate2(cmds)
 
-writeLines(c(dat_cl, dat_other), file.path(path_R, "redis_generated.R"))
+writeLines(c(dat_cl, dat_other), file.path(path_R, "redis_api_generated.R"))
 save(cmds, file=file.path(path_R, "sysdata.rda"))

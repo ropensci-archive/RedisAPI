@@ -40,6 +40,8 @@ rcppredis_connection <- function(config=redis_config()) {
     r(as.character(unlist(cmd)))
   }
   r <- connect(config)
+  ## NOTE: subscription() and pipeline() are not supported and will be
+  ## implemented by the hiredis_function.
   ret <-
     list(
       config=function() {
@@ -50,14 +52,17 @@ rcppredis_connection <- function(config=redis_config()) {
       },
       command=function(cmd) {
         run_command(r, cmd)
-      },
-      ## Stubs for unsupported functions.
-      pipeline=function(...) {
-        stop("Pipelining not supported with RcppRedis")
-      },
-      subscribe=function(...) {
-        stop("Subscription not supported with RcppRedis")
       })
   attr(ret, "type") <- "RcppRedis"
+  class(ret) <- "redis_connection"
   ret
+}
+
+##' @export
+print.redis_connection <- function(x, ...) {
+  cat(sprintf("<redis_connection[%s]>:\n", attr(x, "type", exact=TRUE)))
+  for (i in names(x)) {
+    cat(sprintf("  - %s", capture_args(x[[i]], i)))
+  }
+  invisible(x)
 }

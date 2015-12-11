@@ -197,11 +197,11 @@ generate <- function(cmds) {
     .subscribe=NULL,
 
     initialize=function(obj) {
-      self$config     <- hiredis_function(obj$config)
-      self$reconnect  <- hiredis_function(obj$reconnect)
-      self$.command   <- hiredis_function(obj$command, TRUE)
-      self$.pipeline  <- hiredis_function(obj$pipeline)
-      self$.subscribe <- hiredis_function(obj$subscribe)
+      self$config     <- hiredis_function("config", obj)
+      self$reconnect  <- hiredis_function("reconnect", obj)
+      self$.command   <- hiredis_function("command", obj, TRUE)
+      self$.pipeline  <- hiredis_function("pipeline", obj)
+      self$.subscribe <- hiredis_function("subscribe", obj)
       self$type       <- function() attr(obj, "type", exact=TRUE)
     },
 

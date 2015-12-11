@@ -2,18 +2,25 @@ Package: RedisAPI
 Title: Wrapper for 'Redis' 'API'
 Version: 0.3.0
 Description: Automatically generated 'R6' interface to the full
-  'hiredis' 'API'.  Generated functions are faithful to the 'hiredis'
-  documentation while attempting to match R's argument semantics.
-  Serialisation must be explicitly done by the user, but both binary
-  and text-mode serialisation is supported.  This package needs a driver to
-  work; the 'redux' and 'rrlite' packages provide appropriate interfaces,
-  though neither are yet on CRAN.
-Depends: R (>= 3.1.2)
+    'hiredis' 'API'.  Generated functions are faithful to the 'hiredis'
+    documentation while attempting to match R's argument semantics.
+    Serialisation must be explicitly done by the user, but both binary
+    and text-mode serialisation is supported.  This package needs a driver to
+    work; the 'redux' and 'rrlite' packages provide appropriate interfaces,
+    though neither are yet on CRAN.
+Depends:
+    R (>= 3.1.2)
 License: BSD_2_clause + file LICENSE
 LazyData: true
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("Salvatore", "Sanfilippo", role = "cph"))
 Maintainer: Rich FitzJohn <rich.fitzjohn@gmail.com>
-Imports: R6, RApiSerialize
-Suggests: testthat
+Imports:
+    R6,
+    RApiSerialize
+Suggests:
+    methods,
+    testthat,
+    RcppRedis
+RoxygenNote: 5.0.1

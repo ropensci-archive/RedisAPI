@@ -10,7 +10,7 @@ As of version `0.3.0` RedisAPI supports binary serialisation of almost anything;
 
 
 ```r
-con <- redux::hiredis()
+con <- RedisAPI::redis_api(RedisAPI::rcppredis_connection())
 ```
 
 That connection has many (194) methods. Automatically generated methods are in all-caps, following the Redis documentation.  Unlike Redis they are *case sensitive*.
@@ -36,8 +36,14 @@ HMSET key field value [field value ...]
 
 which sets one or more `field` / `value` pairs within a hash stored at a `key`.  In `RedisAPI`, the generated interface has arguments
 
+
+```r
+args(con$HMSET)
 ```
-function(key, field, value)
+
+```
+## function (key, field, value)
+## NULL
 ```
 
 where `key` is a scalar and `field` / `value` are vectors of the same non-zero length (these requirements are enforced at runtime).
@@ -50,7 +56,7 @@ con$HMSET("myhash", c("a", "b", "c"), c(1, 2, 3))
 ```
 
 ```
-## [Redis: OK]
+## [1] "OK"
 ```
 
 ```r
@@ -94,7 +100,7 @@ con$SET(object_to_string(1:10), object_to_string(iris))
 ```
 
 ```
-## [Redis: OK]
+## [1] "OK"
 ```
 
 ```r
@@ -111,35 +117,9 @@ head(string_to_object(con$GET(object_to_string(1:10))))
 ## 6          5.4         3.9          1.7         0.4  setosa
 ```
 
-String serialisation can very slightly mess with floating point numbers, but should be reasonable for many uses.  Eventually I'd like to support binary serialisation here, but that requires C-level wrappers to be generated.
+String serialisation can very slightly mess with floating point numbers, but should be reasonable for many uses.
 
-# High level support
-
-As a simple example of what could be built on `RedisAPI` there is an example `rdb` class that does very basic key/value storage of R objects:
-
-
-```r
-r <- RedisAPI::rdb(redux::hiredis())
-r$set("foo", runif(20))
-r$get("foo")
-```
-
-```
-##  [1] 0.26550866 0.37212390 0.57285336 0.90820779 0.20168193 0.89838968
-##  [7] 0.94467527 0.66079779 0.62911404 0.06178627 0.20597457 0.17655675
-## [13] 0.68702285 0.38410372 0.76984142 0.49769924 0.71761851 0.99190609
-## [19] 0.38003518 0.77744522
-```
-
-```r
-r$keys()
-```
-
-```
-## [1] "foo"        "mykey"      "a_function" "mtcars"
-```
-
-For a more interesting example, see [`storr`](https://github.com/richfitz/storr)
+It is not supported with RcppRedis above, but the [redux](https://github.com/richfitz/redux) package allows use of binary serialisation for everything.  Use it with `redux::hiredis()`
 
 # rlite support
 

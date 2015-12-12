@@ -159,6 +159,14 @@ hiredis_cmd <- function(x, standalone=FALSE) {
   args <- paste(c(dquote(strsplit(name, " ", name, fixed=TRUE)[[1]]), vars),
                 collapse=", ")
   run <- sprintf("command(list(%s))", args)
+
+  if (name == "SUBSCRIBE") {
+    ## Don't allow use of SUBSCRIBE as it will lock the session and
+    ## never do anything useful:
+    run <-
+      'stop("Do not use SUBSCRIBE(); see subscribe() instead (lower-case)")'
+  }
+
   fn_body <- paste(indent(c(check, pair, run)), collapse="\n")
   fmt <- "%s=function(%s) {\n%s\n}"
   sprintf(fmt, x$name_r, r_fn_args, fn_body)

@@ -667,7 +667,7 @@ redis_cmds <- function(command) {
       command(list("STRLEN", key))
     },
     SUBSCRIBE=function(channel) {
-      command(list("SUBSCRIBE", channel))
+      stop("Do not use SUBSCRIBE(); see subscribe() instead (lower-case)")
     },
     SUNION=function(key) {
       command(list("SUNION", key))

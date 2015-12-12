@@ -21,3 +21,10 @@ test_that("Filter", {
   expect_error(filter_redis_commands(tmp, TRUE),
                "No redis connection to get version from")
 })
+
+test_that("subscribe", {
+  expect_error(redis$SUBSCRIBE("foo"),
+               "Do not use SUBSCRIBE")
+  expect_error(redis$SUBSCRIBE(),
+               "Do not use SUBSCRIBE")
+})

@@ -31,8 +31,8 @@ redis_api <- function(x, version=NULL) {
       self$command <- hiredis_function("command", x)
       self$config     <- hiredis_function("config", x)
       self$reconnect  <- hiredis_function("reconnect", x)
-      self$.pipeline <- hiredis_function(".pipeline", x)
-      self$.subscribe <- hiredis_function(".subscribe", x)
+      self$.pipeline <- hiredis_function("pipeline", x)
+      self$.subscribe <- hiredis_function("subscribe", x)
       self$type <- function() attr(x, "type", exact=TRUE)
       redis <- filter_redis_commands(redis_cmds(self$command),
                                      version, self$command)

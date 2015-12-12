@@ -11,11 +11,13 @@ Automatically generated R6 interface to the full [Redis](http://redis.io) API.  
 
 As of version `0.3.0` RedisAPI supports binary serialisation of almost anything; keys, values, etc.  Just don't expect Redis to do anything sensible with the values - you won't be able to compute on directly.
 
+This package is designed primarily to work with driver packages that are not yet on CRAN: [redux](https://github.com/richfitz/redux) and [`rrlite`](https://github.com/ropensci/rrlite), but support for RcppRedis is included.
+
 ```{r}
 con <- RedisAPI::redis_api(RedisAPI::rcppredis_connection())
 ```
 
-That connection has many (`r length(grep("^[A-Z]", ls(con)))`) methods. Automatically generated methods are in all-caps, following the Redis documentation.  Unlike Redis they are *case sensitive*.
+That connection has many (`r length(grep("^[A-Z]", ls(con)))`) methods. Automatically generated methods are in all-caps, following the Redis documentation.  Unlike Redis commands are *case sensitive*.
 
 ```r
 con
@@ -74,6 +76,12 @@ head(string_to_object(con$GET(object_to_string(1:10))))
 String serialisation can very slightly mess with floating point numbers, but should be reasonable for many uses.
 
 It is not supported with RcppRedis above, but the [redux](https://github.com/richfitz/redux) package allows use of binary serialisation for everything.  Use it with `redux::hiredis()`
+
+# Advanced features
+
+For drivers that support it pipeling is available; multiple commands are queued and sent to the Redis server at the same time.  This can greatly reduce the time to execute bulk commands because you pay only one round trip cost (see `redux` for more details and an example).
+
+Subscription support, using Redis' `PUBLISH`/`SUBSCRIBE` interface is implemented using callback functions.  This requires support in the underlying driver (supported only by `redux`).
 
 # rlite support
 

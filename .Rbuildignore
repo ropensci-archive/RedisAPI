@@ -8,3 +8,4 @@
 ^RedisAPI_.*\.tar\.gz$
 ^RedisAPI.Rcheck$
 ^ignore$
+^TODO\.md$

@@ -4,10 +4,17 @@
 \alias{redis_api}
 \title{Create a Redis API object}
 \usage{
-redis_api(x)
+redis_api(x, version = NULL)
 }
 \arguments{
-\item{x}{An object}
+\item{x}{An object that defines at least the function
+\code{command} capable of processing commands in the form
+produced by RedisAPI (currently undocumented)}
+
+\item{version}{Version of the RedisAPI to generate.  If given as a
+numeric version (or something that can be coerced into one.  If
+given as \code{TRUE}, then we query the Redis server for its
+version and generate only commands supported by the server.}
 }
 \description{
 Create a Redis API object.  This function is designed to be used

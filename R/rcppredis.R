@@ -58,11 +58,15 @@ rcppredis_connection <- function(config=redis_config()) {
   ret
 }
 
+##' @rdname rcppredis_connection
 ##' @export
-print.redis_connection <- function(x, ...) {
-  cat(sprintf("<redis_connection[%s]>:\n", attr(x, "type", exact=TRUE)))
-  for (i in names(x)) {
-    cat(sprintf("  - %s", capture_args(x[[i]], i)))
-  }
-  invisible(x)
+##' @param ... arguments passed through to \code{\link{redis_config}}.
+##'   Can include a named argument \code{config} or named arguments
+##'   \code{host}, \code{port}.
+##' @param version Version of the RedisAPI to generate.  If given as a
+##'   numeric version (or something that can be coerced into one.  If
+##'   given as \code{TRUE}, then we query the Redis server for its
+##'   version and generate only commands supported by the server.
+rcppredis_hiredis <- function(..., version=NULL) {
+  redis_api(rcppredis_connection(redis_config(...)), version)
 }

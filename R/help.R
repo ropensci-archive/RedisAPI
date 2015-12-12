@@ -29,12 +29,12 @@ redis_commands_groups <- function() {
 ##' @examples
 ##' redis_help("SET")
 redis_help <- function(command) {
-  dat <- cmds[[toupper(command)]]
+  COMMAND <- toupper(command)
+  dat <- cmds[[COMMAND]]
   if (is.null(dat)) {
     stop(sprintf("Command '%s' not valid", toupper(command)))
   }
   cat(paste0(dat$summary, "\n"))
-  f <- redis_api_generator$public_methods[[toupper(command)]]
-  cat(paste0("Usage: ", capture_args(f, toupper(command))))
+  cat(paste0("Usage: ", capture_args(redis[[COMMAND]], COMMAND)))
   cat(sprintf("See: http://redis.io/commands/%s\n", tolower(command)))
 }

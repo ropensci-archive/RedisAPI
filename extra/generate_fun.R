@@ -141,7 +141,7 @@ hiredis_cmd <- function(x, standalone=FALSE) {
   ## interleave for the paired ones.  This bit of hackery depends
   ## crucially on the single pair rule.
   if (any(is_paired & is_multiple)) {
-    pair <- sprintf("%s <- interleave(%s, %s)",
+    pair <- sprintf("%s <- cmd_interleave(%s, %s)",
                     pair_from, pair_from, pair_to)
     vars <- setdiff(args$name, pair_to)
   } else {
@@ -150,7 +150,7 @@ hiredis_cmd <- function(x, standalone=FALSE) {
   }
 
   if (any(is_command)) {
-    vars[is_command] <- sprintf("command(%s, %s, %s)",
+    vars[is_command] <- sprintf("cmd_command(%s, %s, %s)",
                                 dquote(vars[is_command]),
                                 vars[is_command],
                                 args$command_length[is_command] > 1L)
@@ -158,19 +158,20 @@ hiredis_cmd <- function(x, standalone=FALSE) {
 
   args <- paste(c(dquote(strsplit(name, " ", name, fixed=TRUE)[[1]]), vars),
                 collapse=", ")
-  run <- sprintf("list(%s)", args)
-  if (!standalone) {
-    run <- sprintf("self$.command(%s)", run)
-  }
+  run <- sprintf("command(list(%s))", args)
   fn_body <- paste(indent(c(check, pair, run)), collapse="\n")
   fmt <- "%s=function(%s) {\n%s\n}"
-  sprintf(fmt, clean_name(name), r_fn_args, fn_body)
+  sprintf(fmt, x$name_r, r_fn_args, fn_body)
 }
 
 read_commands <- function() {
   cmds <- jsonlite::fromJSON("redis-doc/commands.json")
+  ## Filter commands for releasedness:
+  ok <- !vlapply(cmds, function(x) is.null(x$since))
+  cmds <- cmds[ok]
   for (i in seq_along(cmds)) {
     cmds[[i]]$name <- names(cmds)[[i]]
+    cmds[[i]]$name_r <- clean_name(cmds[[i]]$name)
   }
 
   ## Now, go through and get the extra doc:
@@ -184,57 +185,9 @@ read_commands <- function() {
 }
 
 generate <- function(cmds) {
-  header <- "## Automatically generated: do not edit by hand"
-  template <- 'redis_api_generator <- R6::R6Class(
-  "redis_api",
-  public=list(
-    config=NULL,
-    type=NULL,
-    reconnect=NULL,
-    ## Driver functions
-    .command=NULL,
-    .pipeline=NULL,
-    .subscribe=NULL,
-
-    initialize=function(obj) {
-      self$config     <- hiredis_function("config", obj)
-      self$reconnect  <- hiredis_function("reconnect", obj)
-      self$.command   <- hiredis_function("command", obj, TRUE)
-      self$.pipeline  <- hiredis_function("pipeline", obj)
-      self$.subscribe <- hiredis_function("subscribe", obj)
-      self$type       <- function() attr(obj, "type", exact=TRUE)
-    },
-
-    pipeline=function(..., .commands=list(...)) {
-      ret <- self$.pipeline(.commands)
-      if (!is.null(names(.commands))) {
-        names(ret) <- names(.commands)
-      }
-      ret
-    },
-
-    subscribe=function(channel, transform=NULL, terminate=NULL,
-                       collect=TRUE, n=Inf, pattern=FALSE,
-                       envir=parent.frame()) {
-      assert_scalar_logical(pattern)
-      collector <- make_collector(collect)
-      callback <- make_callback(transform, terminate, collector$add, n)
-      self$.subscribe(channel, pattern, callback, envir)
-      collector$get()
-    },
-    ## generated methods:
-%s
-    ))'
-
-  dat <- vcapply(cmds, hiredis_cmd, USE.NAMES=FALSE)
+  template <- 'redis_cmds <- function(command) {\n  list(\n%s)\n}'
+  dat <- vcapply(cmds, hiredis_cmd, NULL, USE.NAMES=FALSE)
   str <- paste(reindent(dat, 4), collapse=",\n")
-  c(header, sprintf(template, str))
-}
-
-generate2 <- function(cmds) {
-  template <- 'redis <- list2env(hash=TRUE, list(\n%s\n))'
-  dat <- vcapply(cmds, hiredis_cmd, TRUE, USE.NAMES=FALSE)
-  str <- paste(reindent(dat, 2), collapse=",\n")
   sprintf(template, str)
 }
 

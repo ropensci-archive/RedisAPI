@@ -2,14 +2,26 @@
 % Please edit documentation in R/rcppredis.R
 \name{rcppredis_connection}
 \alias{rcppredis_connection}
+\alias{rcppredis_hiredis}
 \title{RcppRedis interface}
 \usage{
 rcppredis_connection(config = redis_config())
+
+rcppredis_hiredis(..., version = NULL)
 }
 \arguments{
 \item{config}{A named list of configuration options, as generated
 by \code{\link{redis_config}}.  Only \code{host} and \code{port}
 are used at present.}
+
+\item{...}{arguments passed through to \code{\link{redis_config}}.
+Can include a named argument \code{config} or named arguments
+\code{host}, \code{port}.}
+
+\item{version}{Version of the RedisAPI to generate.  If given as a
+numeric version (or something that can be coerced into one.  If
+given as \code{TRUE}, then we query the Redis server for its
+version and generate only commands supported by the server.}
 }
 \description{
 Support for using RcppRedis with RedisAPI.

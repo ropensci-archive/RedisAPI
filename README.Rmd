@@ -14,25 +14,24 @@ As of version `0.3.0` RedisAPI supports binary serialisation of almost anything;
 This package is designed primarily to work with driver packages that are not yet on CRAN: [redux](https://github.com/richfitz/redux) and [`rrlite`](https://github.com/ropensci/rrlite), but support for RcppRedis is included.
 
 ```{r}
-con <- RedisAPI::redis_api(RedisAPI::rcppredis_connection())
+con <- RedisAPI::rcppredis_hiredis()
 ```
 
 That connection has many (`r length(grep("^[A-Z]", ls(con)))`) methods. Automatically generated methods are in all-caps, following the Redis documentation.  Unlike Redis commands are *case sensitive*.
 
-```r
+``` {r eval=FALSE}
 con
-## <redis_api>
-##   Public:
-##     APPEND: function
-##     AUTH: function
-##     BGREWRITEAOF: function
-##     BGSAVE: function
-##     ...
-##     ZSCORE: function
-##     ZUNIONSTORE: function
+```
+``` {r echo=FALSE}
+res <- capture.output(print(con))
+res <- c(res[1:6], "    ...",
+         res[(max(grep("\\s+[A-Z]", res)) - 2):length(res)])
+writeLines(res)
 ```
 
-The methods are designed to be straightforward to use following the Redis documentation.  For example, the Redis [`HMSET`](http://redis.io/commands/hmset) command is defined as
+The lower-case methods listed after the upper-case Redis commands are not REdis commands, but can be used to do things other an issue commands (see below).
+
+The Redis methods are designed to be straightforward to use following the Redis documentation.  For example, the Redis [`HMSET`](http://redis.io/commands/hmset) command is defined as
 
 ```
 HMSET key field value [field value ...]
@@ -53,13 +52,13 @@ con$HMSET("myhash", c("a", "b", "c"), c(1, 2, 3))
 con$HGET("myhash", "b")
 ```
 
-Note that no clever type conversion will be done; R types are converted to strings and are not converted back when returned.
+Note that no clever type conversion will be done; R types are converted to strings and are not converted back when returned.  In general this is not possible without serialisation.
 
-There are some sub-command-style Redis commands with spaces in them (e.g., `CLIENT KILL`, `SCRIPT LOAD`; these are implemented by replacing spaces with underscores to give `CLIENT_KILL` and `SCRIPT_LOAD`.
+Redis contains several "sub-command-style" commands with spaces in them (e.g., `CLIENT KILL`, `SCRIPT LOAD`); these are implemented by replacing spaces with underscores to give `CLIENT_KILL` and `SCRIPT_LOAD`.
 
 # Serialisation
 
-To ease saving arbitrary R data into Redis, `RedisAPI` has two convenience functions for serialising to and deserialising from a string: `object_to_string` and `string_to_object`.
+To ease saving and retrieving arbitrary R data into Redis, `RedisAPI` has two convenience functions for serialising to and deserialising from a string: `object_to_string` and `string_to_object`.
 
 ```{r}
 object_to_string(2)
@@ -75,21 +74,17 @@ head(string_to_object(con$GET(object_to_string(1:10))))
 
 String serialisation can very slightly mess with floating point numbers, but should be reasonable for many uses.
 
-It is not supported with RcppRedis above, but the [redux](https://github.com/richfitz/redux) package allows use of binary serialisation for everything.  Use it with `redux::hiredis()`
+It is not supported with RcppRedis above, but the [redux](https://github.com/richfitz/redux) package allows use of binary serialisation for everything.  Use it with `redux::hiredis()`.  The convenience functions there are `object_to_bin` and `bin_to_object`.
 
 # Advanced features
 
-For drivers that support it pipeling is available; multiple commands are queued and sent to the Redis server at the same time.  This can greatly reduce the time to execute bulk commands because you pay only one round trip cost (see `redux` for more details and an example).
+For drivers that support it, "pipeling" is available; multiple commands are queued and sent to the Redis server at the same time.  This can greatly reduce the time to execute bulk commands because you pay only one round trip cost (see `redux` for more details and an example).
 
 Subscription support, using Redis' `PUBLISH`/`SUBSCRIBE` interface is implemented using callback functions.  This requires support in the underlying driver (supported only by `redux`).
 
 # rlite support
 
-If [`rrlite`](https://github.com/ropensci/rrlite) is installed, you can create hirlite connections with `rrlite::hirlite()` which has the same set of generated interfaces.  Not all commands are supported (for example, `SCAN` and `BLPOP`) but `hirlite` will throw an error if unsupported commands are used.
-
-# Documentation
-
-There is a vignette (`vignette("RedisAPI")`) that outlines the basic idea.  Source is [here](vignette/RedisAPI.Rmd), and rendered [here](http://htmlpreview.github.io/?https://raw.githubusercontent.com/ropensci/RedisAPI/master/inst/doc/RedisAPI.html)
+If [`rrlite`](https://github.com/ropensci/rrlite) is installed, you can create hirlite connections with `rrlite::hirlite()` which has the same set of generated interfaces.  Not all commands are supported (for example, `SCAN` and `BLPOP`) but `hirlite` will throw an error if unsupported commands are used.  `rrlite` does not currently compile on Windows.
 
 ## Meta
 

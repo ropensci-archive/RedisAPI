@@ -88,9 +88,7 @@ filter_redis_commands <- function(x, version, command=NULL) {
     }
   }
   if (inherits(version, "numeric_version")) {
-    vv <- numeric_version(vcapply(cmds, function(x) x$since))
-    names(vv) <- vcapply(cmds, "[[", "name_r")
-    x <- x[names(vv)[vv <= version]]
+    x <- x[cmd_since[names(x)] <= version]
   }
   x
 }

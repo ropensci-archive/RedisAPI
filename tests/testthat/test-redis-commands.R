@@ -12,7 +12,7 @@ test_that("Filter", {
                    length(tmp))
   expect_equal(length(filter_redis_commands(tmp, "0.9.9")), 0)
 
-  mv <- max(numeric_version(vcapply(cmds, "[[", "since")))
+  mv <- unname(max(cmd_since))
   expect_equal(length(filter_redis_commands(tmp, mv)),
                length(tmp))
   expect_equal(length(filter_redis_commands(tmp, as.character(mv))),

@@ -46,7 +46,7 @@ test_that("filter version", {
   expect_less_than(length(x1), length(x2))
 
   our_ver <- redis_version(x1)
-  max_ver <- unname(max(numeric_version(vcapply(cmds, "[[", "since"))))
+  max_ver <- unname(max(cmd_since))
 
   x3 <- redis_api(rcppredis_connection(), TRUE)
   expect_equal(length(x3) > length(x2),

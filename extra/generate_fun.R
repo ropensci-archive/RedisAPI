@@ -202,3 +202,11 @@ generate <- function(cmds) {
 clean_name <- function(x) {
   toupper(gsub("[ -]", "_", x))
 }
+
+generate_since <- function(cmds) {
+  vv <- vcapply(cmds, function(x) x$since)
+  names(vv) <- vcapply(cmds, "[[", "name_r")
+  vv <- vv[order(names(vv))]
+  sprintf("cmd_since <- numeric_version(c(\n%s))",
+          paste(sprintf('  %s="%s"', names(vv), vv), collapse=",\n"))
+}

@@ -10,5 +10,5 @@ if (!file.exists("redis-doc")) {
 
 cmds <- read_commands()
 dat <- generate(cmds)
-writeLines(dat, file.path(path_R, "redis_api_generated.R"))
-save(cmds, file=file.path(path_R, "sysdata.rda"))
+writeLines(c(dat, generate_since(cmds)),
+           file.path(path_R, "redis_api_generated.R"))

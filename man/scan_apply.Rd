@@ -6,23 +6,39 @@
 \alias{scan_find}
 \title{Iterate over keys using SCAN}
 \usage{
-scan_apply(con, callback, pattern = NULL, count = NULL)
+scan_apply(con, callback, pattern = NULL, ..., count = NULL,
+  type = "SCAN", key = NULL)
 
-scan_del(con, pattern, count = NULL)
+scan_del(con, pattern, count = NULL, type = "SCAN", key = NULL)
 
-scan_find(con, pattern, count = NULL)
+scan_find(con, pattern, count = NULL, type = "SCAN", key = NULL)
 }
 \arguments{
 \item{con}{A \code{redis_api} object}
 
 \item{callback}{Function that takes a character vector of keys and
-does something useful to it.  \code{con$DEL} is one option here to
-delete keys that match a pattern.}
+does something useful to it.  \code{con$DEL} is one option here
+to delete keys that match a pattern.  Unlike R's *apply
+functions, callback is called for its side effects and its
+return values will be ignored.}
 
 \item{pattern}{Optional pattern to use.}
 
+\item{...}{additional arguments passed through to \code{callback}.
+Note that if used, \code{pattern} must be provided (at least as
+\code{NULL}).}
+
 \item{count}{Optional step size (default is Redis' default which
 is 10)}
+
+\item{type}{Type of SCAN to run.  Options are \code{"SCAN"} (the
+default), \code{"HSCAN"} (scan through keys of a hash),
+\code{"SSCAN"} (scan through elements of a set) and
+\code{"ZSCAN"} (scan though elements of a sorted set).  If
+\code{type} is not \code{"SCAN"}, then \code{key} must be
+provided.  HSCAN and ZSCAN currently do not work usefully.}
+
+\item{key}{Key to use when running a hash, set or sorted set scan.}
 }
 \description{
 Support for iterating with \code{SCAN}.  Note that this will
